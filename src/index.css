@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+html, body, #root {
+  height: 100%;
+  font-family: 'Noto Sans CJK KR', 'Noto Sans', sans-serif;
+}
