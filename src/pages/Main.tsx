@@ -132,8 +132,10 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
                         "make room response"
                       );
                       if (newRoomId.success) {
-                        updateRoomId(newRoomId.result?.id ?? null);
-                        history.push(`/rooms/${newRoomId.result}`);
+                        updateRoomId(newRoomId.result.id);
+                        setTimeout(() => {
+                          history.push(`/rooms/${newRoomId.result.id}`);
+                        }, 500);
                       } else {
                         console.error(newRoomId.error);
                       }

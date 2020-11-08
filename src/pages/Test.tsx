@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "redux-zero/react";
-import actions from "../actions";
+import actions, { ActionTypes } from "../actions";
 import GoStop from "../components/GoStop";
 import { AppState } from "../store";
 import { Game } from "../types/game";
@@ -155,10 +155,10 @@ const game: Game = {
 };
 
 type TestProps = {};
-const Test: React.FC<TestProps> = () => {
+const Test: React.FC<TestProps & ActionTypes> = ({ updateGame }) => {
   return (
     <div className="w-full h-full">
-      <GoStop game={game} player={1} clientId={"hi"} />
+      <GoStop game={game} player={1} clientId={"hi"} updateGame={updateGame} />
     </div>
   );
 };

@@ -12,7 +12,8 @@ const GoStop: React.FC<{
   game: Game;
   player: 0 | 1 | null;
   clientId: string | null;
-}> = ({ game, player, clientId }) => {
+  updateGame: (game: Game | null) => void;
+}> = ({ game, player, clientId, updateGame }) => {
   const involved = !!clientId && game.players.includes(clientId);
   return (
     <div
@@ -123,6 +124,8 @@ const GoStop: React.FC<{
                   onClick={async () => {
                     if (!socket) return;
                     if (!clientId) return;
+
+                    updateGame(null);
 
                     emitToServer("end game", { client: clientId });
                     const endGameMessage = await getServerResponse(

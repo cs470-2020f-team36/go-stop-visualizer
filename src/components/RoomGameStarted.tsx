@@ -135,6 +135,7 @@ const RoomGameStarted: React.FC<{ id: string } & AppState & ActionTypes> = ({
         game={game}
         player={index === -1 ? null : index}
         clientId={clientId}
+        updateGame={updateGame}
       />
     </div>
   );

@@ -24,9 +24,9 @@ export function cardNameKo(card: Card) {
     const ribbon = [1, 2, 3].includes(month)
       ? "홍"
       : [4, 5, 7].includes(month)
-      ? "청"
-      : [6, 9, 10].includes(month)
       ? "초"
+      : [6, 9, 10].includes(month)
+      ? "청"
       : null;
     return `${month}월 띠${!ribbon ? "" : ` (${ribbon}단)`}`;
   }

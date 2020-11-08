@@ -28,11 +28,14 @@ const updateGame = (store: Store<AppState>) => (
 ) => {
   return { game } as Partial<AppState>;
 };
+type Voidify<T> = T extends (...params: infer R) => unknown
+  ? (...params: R) => void
+  : never;
 type ActionsType = {
-  updateClientId: ReturnType<typeof updateClientId>;
-  updateRooms: ReturnType<typeof updateRooms>;
-  updateRoomId: ReturnType<typeof updateRoomId>;
-  updateGame: ReturnType<typeof updateGame>;
+  updateClientId: Voidify<ReturnType<typeof updateClientId>>;
+  updateRooms: Voidify<ReturnType<typeof updateRooms>>;
+  updateRoomId: Voidify<ReturnType<typeof updateRoomId>>;
+  updateGame: Voidify<ReturnType<typeof updateGame>>;
 };
 
 const actions: (store: Store<AppState>) => ActionsType = (store) => ({
