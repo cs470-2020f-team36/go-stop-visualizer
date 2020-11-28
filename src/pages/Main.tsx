@@ -9,7 +9,6 @@ import actions, { ActionTypes } from "../actions";
 import { AppState } from "../store";
 import { emitToServer, getServerResponse } from "../utils/server";
 import IconButton from "../components/IconButton";
-import TextButton from "../components/TextButton";
 import TextInput from "../components/TextInput";
 import Table from "../components/Table";
 import useAsyncEffect from "use-async-effect";
@@ -34,23 +33,25 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
   return (
     <Layout>
       <Header>
-        <TextInput
-          className="w-64"
-          placeholder="Client ID"
-          value={clientId ?? ""}
-          onChange={(event) => {
-            updateClientId(event.target.value);
-          }}
-        />
-        <TextButton
-          size="sm"
-          onClick={goToMyRoom(
-            { history, clientId, roomId, rooms, updateRoomId },
-            false
-          )}
-        >
-          Go to my room
-        </TextButton>
+        <div className="flex">
+          <TextInput
+            className="w-64 my-1"
+            placeholder="Client ID"
+            value={clientId ?? ""}
+            onChange={(event) => {
+              updateClientId(event.target.value);
+            }}
+          />
+          <IconButton
+            className="ml-4"
+            onClick={goToMyRoom(
+              { history, clientId, roomId, rooms, updateRoomId },
+              false
+            )}
+          >
+            <BiLogIn />
+          </IconButton>
+        </div>
       </Header>
       <main>
         <h2 className="p-4 font-bold text-3xl text-gray-800">Rooms</h2>
@@ -135,7 +136,7 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
                         updateRoomId(newRoomId.result.id);
                         setTimeout(() => {
                           history.push(`/rooms/${newRoomId.result.id}`);
-                        }, 500);
+                        }, 200);
                       } else {
                         console.error(newRoomId.error);
                       }

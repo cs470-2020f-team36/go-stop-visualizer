@@ -6,12 +6,11 @@ import { AppState } from "../store";
 import { emitToServer, getServerResponse } from "../utils/server";
 import { BlockLoading } from "react-loadingg";
 import IconButton from "../components/IconButton";
-import { BiExit } from "react-icons/bi";
+import { BiLogIn, BiLogOut } from "react-icons/bi";
 import { BsPlayFill } from "react-icons/bs";
 import Layout from "../components/Layout";
 import Header from "../components/Header";
 import TextInput from "../components/TextInput";
-import TextButton from "../components/TextButton";
 import { Room } from "../types/server";
 import { goToMyRoom } from "../hooks";
 import Table from "../components/Table";
@@ -37,29 +36,35 @@ const Rooms: React.FC<
     rooms?.find((room) => room.id === match.params.roomId) ?? null;
 
   return rooms === null ? (
-    <div>loading</div>
+    <Layout>
+      <BlockLoading />
+    </Layout>
   ) : !room ? (
     <Redirect to="/" />
   ) : !room.gameStarted ? (
     <Layout>
       <Header>
-        <TextInput
-          className="w-64"
-          placeholder="Client ID"
-          value={clientId ?? ""}
-          onChange={(event) => {
-            updateClientId(event.target.value);
-          }}
-        />
-        <TextButton
-          size="sm"
-          onClick={goToMyRoom(
-            { history, clientId, roomId, rooms, updateRoomId },
-            false
+        <div className="flex">
+          <TextInput
+            className="w-64 my-1"
+            placeholder="Client ID"
+            value={clientId ?? ""}
+            onChange={(event) => {
+              updateClientId(event.target.value);
+            }}
+          />
+          {roomId !== match.params.roomId && (
+            <IconButton
+              className="ml-4"
+              onClick={goToMyRoom(
+                { history, clientId, roomId, rooms, updateRoomId },
+                false
+              )}
+            >
+              <BiLogIn />
+            </IconButton>
           )}
-        >
-          Go to my room
-        </TextButton>
+        </div>
       </Header>
       <main>
         <h2 className="p-4 font-bold text-3xl text-gray-800 inline-flex">
@@ -69,11 +74,11 @@ const Rooms: React.FC<
               <IconButton
                 onClick={async () => {
                   emitToServer("start game", { client: clientId });
-                  const myRoomMessage = await getServerResponse(
+                  const startGameMessage = await getServerResponse(
                     "start game response"
                   );
-                  if (!myRoomMessage.success) {
-                    console.error(myRoomMessage.error);
+                  if (!startGameMessage.success) {
+                    console.error(startGameMessage.error);
                   }
                 }}
                 className="ml-4"
@@ -83,20 +88,43 @@ const Rooms: React.FC<
               <IconButton
                 onClick={async () => {
                   emitToServer("exit room", { client: clientId });
-                  const myRoomMessage = await getServerResponse(
+                  const exitRoomMessage = await getServerResponse(
                     "exit room response"
                   );
-                  if (myRoomMessage.success) {
+                  if (exitRoomMessage.success) {
                     setTimeout(() => {
                       history.replace("/");
                     }, 300);
                   } else {
-                    console.error(myRoomMessage.error);
+                    console.error(exitRoomMessage.error);
                   }
                 }}
                 className="ml-4"
               >
-                <BiExit />
+                <BiLogOut />
+              </IconButton>
+            </>
+          )}
+          {roomId !== match.params.roomId && clientId && (
+            <>
+              <IconButton
+                onClick={async () => {
+                  emitToServer("join room", {
+                    client: clientId,
+                    room: match.params.roomId,
+                  });
+                  const joinRoomMessage = await getServerResponse(
+                    "join room response"
+                  );
+                  if (joinRoomMessage.success) {
+                    updateRoomId(room.id);
+                  } else {
+                    console.error(joinRoomMessage.error);
+                  }
+                }}
+                className="ml-4"
+              >
+                <BiLogIn />
               </IconButton>
             </>
           )}

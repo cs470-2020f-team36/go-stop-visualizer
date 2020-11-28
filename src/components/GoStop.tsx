@@ -6,6 +6,7 @@ import { Card, Game, GameAction } from "../types/game";
 import { cardNameKo, cardToImageSrc } from "../utils/card";
 import { hiddenHand } from "../utils/game";
 import { emitToServer, getServerResponse } from "../utils/server";
+import CardButton from "./CardButton";
 import TextButton from "./TextButton";
 
 const GoStop: React.FC<{
@@ -14,7 +15,6 @@ const GoStop: React.FC<{
   clientId: string | null;
   updateGame: (game: Game | null) => void;
 }> = ({ game, player, clientId, updateGame }) => {
-  const involved = !!clientId && game.players.includes(clientId);
   return (
     <div
       className="w-full h-full flex place-items-center"
@@ -24,134 +24,152 @@ const GoStop: React.FC<{
     >
       <GoStopField game={game} player={player} clientId={clientId} />
       {game.state.ended ? (
-        <div
-          className="w-full h-full flex place-items-center fixed z-10"
-          style={{
-            backgroundColor: "rgba(0, 0, 0, 0.45)",
-          }}
-        >
-          <div className="p-8 bg-white rounded-2xl w-2/3 text-center m-auto">
-            <h2 className="font-black text-3xl text-gray-800 mb-3">
-              {game.state.winner === null
-                ? "🤔 나가리"
-                : game.state.winner === player
-                ? "🌟 승리!"
-                : 1 - game.state.winner === player
-                ? "😥 패배..."
-                : `🏆 ${game.players[game.state.winner]}의 승리!`}
-            </h2>
-            <p>
-              <span className="text-xl text-gray-800">
-                {game.state.winner === null ? null : (
-                  <>
-                    총{" "}
-                    <span className="font-bold">
-                      {game.state.scores[game.state.winner]}
-                    </span>
-                    점
-                  </>
-                )}
-              </span>
-            </p>
-            <p>
-              <span className="text-md text-gray-800">
-                {game.state.winner === null
-                  ? null
-                  : [
-                      {
-                        kind: "go-add",
-                        arg: game.state.go_histories[game.state.winner].length,
-                      },
-                      ...game.state.score_factors[game.state.winner],
-                    ]
-                      .map((factor) =>
-                        factor.kind === "go-add"
-                          ? factor.arg === 0
-                            ? null
-                            : `고 ${factor.arg}점`
-                          : factor.kind === "go"
-                          ? factor.arg <= 2
-                            ? null
-                            : `고 ${Math.pow(2, factor.arg - 2)}배`
-                          : factor.kind === "bright"
-                          ? factor.arg === 0
-                            ? null
-                            : `광 ${factor.arg}점`
-                          : factor.kind === "animal"
-                          ? factor.arg < 5
-                            ? null
-                            : `열끗 ${factor.arg - 4}점`
-                          : factor.kind === "ribbon"
-                          ? factor.arg < 5
-                            ? null
-                            : `단 ${factor.arg - 4}점`
-                          : factor.kind === "junk"
-                          ? factor.arg < 10
-                            ? null
-                            : `피 ${factor.arg - 9}점`
-                          : factor.kind === "five birds"
-                          ? `고도리 5점`
-                          : factor.kind === "red ribbons"
-                          ? `홍단 3점`
-                          : factor.kind === "blue ribbons"
-                          ? `청단 3점`
-                          : factor.kind === "plant ribbons"
-                          ? `초단 3점`
-                          : factor.kind === "shaking"
-                          ? factor.arg === 0
-                            ? null
-                            : `흔들기 ${Math.pow(2, factor.arg)}배`
-                          : factor.kind === "bright penalty"
-                          ? `광박 2배`
-                          : factor.kind === "animal penalty"
-                          ? `멍따 2배`
-                          : factor.kind === "junk penalty"
-                          ? `피박 2배`
-                          : factor.kind === "go penalty"
-                          ? `고박 2배`
-                          : factor.kind === "four of a month"
-                          ? `총통 10점`
-                          : `쓰리뻑 10점`
-                      )
-                      .filter((x) => x !== null)
-                      .join(", ")}
-              </span>
-            </p>
-            <p>
-              {involved ? (
-                <TextButton
-                  className="m-auto mt-4"
-                  onClick={async () => {
-                    if (!socket) return;
-                    if (!clientId) return;
-
-                    updateGame(null);
-
-                    emitToServer("end game", { client: clientId });
-                    const endGameMessage = await getServerResponse(
-                      "end game response"
-                    );
-                    if (!endGameMessage.success) {
-                      console.error(endGameMessage.error);
-                      return;
-                    }
-
-                    emitToServer("start game", { client: clientId });
-                    const startGameMessage = await getServerResponse(
-                      "start game response"
-                    );
-                    if (!startGameMessage.success) {
-                      console.error(startGameMessage.error);
-                    }
-                  }}
-                >
-                  새 게임 하기
-                </TextButton>
-              ) : null}
-            </p>
-          </div>
-        </div>
+        <GameEnded
+          game={game}
+          player={player}
+          clientId={clientId}
+          updateGame={updateGame}
+        />
       ) : null}
+    </div>
+  );
+};
+
+const GameEnded: React.FC<{
+  game: Game;
+  player: 0 | 1 | null;
+  clientId: string | null;
+  updateGame: (game: Game | null) => void;
+}> = ({ game, player, clientId, updateGame }) => {
+  const involved = !!clientId && game.players.includes(clientId);
+
+  return (
+    <div
+      className="w-full h-full flex place-items-center fixed z-10 top-0 left-0"
+      style={{
+        backgroundColor: "rgba(0, 0, 0, 0.45)",
+      }}
+    >
+      <div className="p-8 bg-white rounded-2xl w-2/3 text-center m-auto">
+        <h2 className="font-black text-3xl text-gray-800 mb-3">
+          {game.state.winner === null
+            ? "🤔 나가리"
+            : game.state.winner === player
+            ? "🌟 승리!"
+            : 1 - game.state.winner === player
+            ? "😥 패배..."
+            : `🏆 ${game.players[game.state.winner]}의 승리!`}
+        </h2>
+        <p>
+          <span className="text-xl text-gray-800">
+            {game.state.winner === null ? null : (
+              <>
+                총{" "}
+                <span className="font-bold">
+                  {game.state.scores[game.state.winner]}
+                </span>
+                점
+              </>
+            )}
+          </span>
+        </p>
+        <p>
+          <span className="text-md text-gray-800">
+            {game.state.winner === null
+              ? null
+              : [
+                  {
+                    kind: "go-add",
+                    arg: game.state.go_histories[game.state.winner].length,
+                  },
+                  ...game.state.score_factors[game.state.winner],
+                ]
+                  .map((factor) =>
+                    factor.kind === "go-add"
+                      ? factor.arg === 0
+                        ? null
+                        : `고 ${factor.arg}점`
+                      : factor.kind === "go"
+                      ? factor.arg <= 2
+                        ? null
+                        : `고 ${Math.pow(2, factor.arg - 2)}배`
+                      : factor.kind === "bright"
+                      ? factor.arg === 0
+                        ? null
+                        : `광 ${factor.arg}점`
+                      : factor.kind === "animal"
+                      ? factor.arg < 5
+                        ? null
+                        : `열끗 ${factor.arg - 4}점`
+                      : factor.kind === "ribbon"
+                      ? factor.arg < 5
+                        ? null
+                        : `단 ${factor.arg - 4}점`
+                      : factor.kind === "junk"
+                      ? factor.arg < 10
+                        ? null
+                        : `피 ${factor.arg - 9}점`
+                      : factor.kind === "five birds"
+                      ? `고도리 5점`
+                      : factor.kind === "red ribbons"
+                      ? `홍단 3점`
+                      : factor.kind === "blue ribbons"
+                      ? `청단 3점`
+                      : factor.kind === "plant ribbons"
+                      ? `초단 3점`
+                      : factor.kind === "shaking"
+                      ? factor.arg === 0
+                        ? null
+                        : `흔들기 ${Math.pow(2, factor.arg)}배`
+                      : factor.kind === "bright penalty"
+                      ? `광박 2배`
+                      : factor.kind === "animal penalty"
+                      ? `멍따 2배`
+                      : factor.kind === "junk penalty"
+                      ? `피박 2배`
+                      : factor.kind === "go penalty"
+                      ? `고박 2배`
+                      : factor.kind === "four of a month"
+                      ? `총통 10점`
+                      : `쓰리뻑 10점`
+                  )
+                  .filter((x) => x !== null)
+                  .join(", ")}
+          </span>
+        </p>
+        <p>
+          {involved ? (
+            <TextButton
+              className="m-auto mt-4"
+              onClick={async () => {
+                if (!socket) return;
+                if (!clientId) return;
+
+                updateGame(null);
+
+                emitToServer("end game", { client: clientId });
+                const endGameMessage = await getServerResponse(
+                  "end game response"
+                );
+                if (!endGameMessage.success) {
+                  console.error(endGameMessage.error);
+                  return;
+                }
+
+                emitToServer("start game", { client: clientId });
+                const startGameMessage = await getServerResponse(
+                  "start game response"
+                );
+                if (!startGameMessage.success) {
+                  console.error(startGameMessage.error);
+                }
+              }}
+            >
+              새 게임 하기
+            </TextButton>
+          ) : null}
+        </p>
+      </div>
     </div>
   );
 };
@@ -456,14 +474,17 @@ const GoStopHand: React.FC<{
                 10
               )}월 흔들기`;
           return (
-            <GoStopCard
+            <CardButton
               key={i}
               card={card}
-              width={width}
               style={{
+                width,
                 margin: gap / 2,
                 borderRadius: 4 * ratio,
               }}
+              title={title}
+              hoverEnabled={mine}
+              anchorBottom
               className={
                 !mine
                   ? ""
@@ -471,7 +492,6 @@ const GoStopHand: React.FC<{
                   ? "cursor-not-allowed"
                   : "cursor-pointer"
               }
-              title={title}
               onClick={
                 !mine
                   ? undefined
@@ -504,31 +524,30 @@ const GoStopCaptureField: React.FC<{
   const animalCards = captureField.filter(
     (card) => card.startsWith("A") && (!animal9Moved || card !== "A09")
   );
-  const animalScore =
-    Math.max(animalCards.length - 4, 0) +
-    (animalCards.includes("A02") &&
+  const isGodoriMade =
+    animalCards.includes("A02") &&
     animalCards.includes("A04") &&
-    animalCards.includes("A08")
-      ? 5
-      : 0);
+    animalCards.includes("A08");
+  const animalScore =
+    Math.max(animalCards.length - 4, 0) + (isGodoriMade ? 5 : 0);
   const ribbonCards = captureField.filter((card) => card.startsWith("R"));
+  const isRedRibbonMade =
+    ribbonCards.includes("R01") &&
+    ribbonCards.includes("R02") &&
+    ribbonCards.includes("R03");
+  const isPlantRibbonMade =
+    ribbonCards.includes("R04") &&
+    ribbonCards.includes("R05") &&
+    ribbonCards.includes("R07");
+  const isBlueRibbonMade =
+    ribbonCards.includes("R06") &&
+    ribbonCards.includes("R09") &&
+    ribbonCards.includes("R10");
   const ribbonScore =
     Math.max(ribbonCards.length - 4, 0) +
-    (animalCards.includes("R01") &&
-    animalCards.includes("R02") &&
-    animalCards.includes("R03")
-      ? 3
-      : 0) +
-    (animalCards.includes("R04") &&
-    animalCards.includes("R05") &&
-    animalCards.includes("R07")
-      ? 3
-      : 0) +
-    (animalCards.includes("R06") &&
-    animalCards.includes("R09") &&
-    animalCards.includes("R10")
-      ? 3
-      : 0);
+    (isBlueRibbonMade ? 3 : 0) +
+    (isPlantRibbonMade ? 3 : 0) +
+    (isRedRibbonMade ? 3 : 0);
 
   const junkCards = captureField.filter(
     (card) =>

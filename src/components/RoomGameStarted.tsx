@@ -7,7 +7,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import actions, { ActionTypes } from "../actions";
 import { socket } from "../socket";
 import { AppState } from "../store";
-import { GameAction, GameActionSelectMatch } from "../types/game";
+import { GameActionSelectMatch } from "../types/game";
 import { Result, Message } from "../types/server";
 import {
   attachServerListener,
@@ -18,6 +18,7 @@ import {
 import GoStop from "./GoStop";
 import TextButton from "./TextButton";
 import IconButton from "./IconButton";
+import CardButton from "./CardButton";
 
 const RoomGameStarted: React.FC<{ id: string } & AppState & ActionTypes> = ({
   id,
@@ -38,6 +39,11 @@ const RoomGameStarted: React.FC<{ id: string } & AppState & ActionTypes> = ({
   }, [id, updateGame]);
 
   const isMyTurn = game && game.players[game.state.player] === clientId;
+  const [showLogs, setShowLogs] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
+  const [dialogContent, setDialogContent] = useState<React.ReactElement | null>(
+    null
+  );
 
   useAsyncEffect(async () => {
     if (!socket) return;
@@ -45,50 +51,256 @@ const RoomGameStarted: React.FC<{ id: string } & AppState & ActionTypes> = ({
     if (!isMyTurn) return;
     if (!Object.values(game.flags).some((v: boolean) => v)) return;
 
-    let action: GameAction | null = null;
     if (game.flags.go) {
-      // eslint-disable-next-line no-restricted-globals
-      const go = confirm(`Go?`);
-      action = { kind: "go", option: go };
-    } else if (game.flags.shaking) {
-      // eslint-disable-next-line no-restricted-globals
-      const shaking = confirm(`Shake?`);
-      action = { kind: "shaking", option: shaking };
-    } else if (game.flags.select_match) {
-      // eslint-disable-next-line no-restricted-globals
-      const option = confirm(
-        `${(game.actions[0] as GameActionSelectMatch).match} (ok) or ${
-          (game.actions[1] as GameActionSelectMatch).match
-        } (cancel)?`
+      setShowDialog(true);
+      setDialogContent(
+        <>
+          <h2 className="font-black text-xl text-gray-800 mb-3">
+            고 하시겠습니까?
+          </h2>
+          <div className="flex justify-center">
+            <TextButton
+              style={{ minWidth: "3em", marginRight: "2em" }}
+              onClick={async () => {
+                emitToServer("play", {
+                  client: clientId!,
+                  action: { kind: "go", option: true },
+                });
+                const playMessage = await getServerResponse("play response");
+                if (playMessage.success) {
+                  updateGame(playMessage.result);
+                  setShowDialog(false);
+                } else {
+                  console.error(playMessage.error);
+                }
+              }}
+            >
+              <span>고</span>
+            </TextButton>
+            <TextButton
+              onClick={async () => {
+                emitToServer("play", {
+                  client: clientId!,
+                  action: { kind: "go", option: false },
+                });
+                const playMessage = await getServerResponse("play response");
+                if (playMessage.success) {
+                  updateGame(playMessage.result);
+                  setShowDialog(false);
+                } else {
+                  console.error(playMessage.error);
+                }
+              }}
+            >
+              <span>스톱</span>
+            </TextButton>
+          </div>
+        </>
       );
-      action = {
-        kind: "select match",
-        match: option
-          ? (game.actions[0] as GameActionSelectMatch).match
-          : (game.actions[1] as GameActionSelectMatch).match,
-      };
+    } else if (game.flags.shaking) {
+      setShowDialog(true);
+      setDialogContent(
+        <>
+          <h2 className="font-black text-xl text-gray-800 mb-3">
+            흔드시겠습니까?
+          </h2>
+          <div className="flex justify-center">
+            <TextButton
+              style={{ minWidth: "3em", marginRight: "2em" }}
+              onClick={async () => {
+                emitToServer("play", {
+                  client: clientId!,
+                  action: { kind: "shaking", option: true },
+                });
+                const playMessage = await getServerResponse("play response");
+                if (playMessage.success) {
+                  updateGame(playMessage.result);
+                  setShowDialog(false);
+                } else {
+                  console.error(playMessage.error);
+                }
+              }}
+            >
+              <span>네</span>
+            </TextButton>
+            <TextButton
+              onClick={async () => {
+                emitToServer("play", {
+                  client: clientId!,
+                  action: { kind: "shaking", option: false },
+                });
+                const playMessage = await getServerResponse("play response");
+                if (playMessage.success) {
+                  updateGame(playMessage.result);
+                  setShowDialog(false);
+                } else {
+                  console.error(playMessage.error);
+                }
+              }}
+            >
+              <span>아니요</span>
+            </TextButton>
+          </div>
+        </>
+      );
+    } else if (game.flags.select_match) {
+      setShowDialog(true);
+      setDialogContent(
+        <>
+          <h2 className="font-black text-xl text-gray-800 mb-3">
+            가져올 패를 골라주세요.
+          </h2>
+          <div
+            style={{
+              maxWidth: "calc(80% + 2em)",
+              margin: "auto",
+              marginTop: "2em",
+            }}
+          >
+            <div
+              className="flex justify-between"
+              style={{ maxWidth: "14em", margin: "auto" }}
+            >
+              <CardButton
+                card={(game.actions[0] as GameActionSelectMatch).match}
+                style={{ maxWidth: "6em", width: "40%" }}
+                onClick={async () => {
+                  emitToServer("play", {
+                    client: clientId!,
+                    action: {
+                      kind: "select match",
+                      match: (game.actions[0] as GameActionSelectMatch).match,
+                    },
+                  });
+                  const playMessage = await getServerResponse("play response");
+                  if (playMessage.success) {
+                    updateGame(playMessage.result);
+                    setShowDialog(false);
+                  } else {
+                    console.error(playMessage.error);
+                  }
+                }}
+              />
+              <CardButton
+                card={(game.actions[1] as GameActionSelectMatch).match}
+                style={{ maxWidth: "6em", width: "40%" }}
+                onClick={async () => {
+                  emitToServer("play", {
+                    client: clientId!,
+                    action: {
+                      kind: "select match",
+                      match: (game.actions[1] as GameActionSelectMatch).match,
+                    },
+                  });
+                  const playMessage = await getServerResponse("play response");
+                  if (playMessage.success) {
+                    updateGame(playMessage.result);
+                    setShowDialog(false);
+                  } else {
+                    console.error(playMessage.error);
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </>
+      );
     } else if (game.flags.move_animal_9) {
-      // eslint-disable-next-line no-restricted-globals
-      const moveAnimal9 = confirm(`move animal 9?`);
-      action = { kind: "move animal 9", option: moveAnimal9 };
+      setShowDialog(true);
+      setDialogContent(
+        <>
+          <h2 className="font-black text-xl text-gray-800 mb-3">
+            9월 열끗을 쌍피로 옮길까요?
+          </h2>
+          <div className="flex justify-center">
+            <TextButton
+              style={{ minWidth: "3em", marginRight: "2em" }}
+              onClick={async () => {
+                emitToServer("play", {
+                  client: clientId!,
+                  action: { kind: "move animal 9", option: true },
+                });
+                const playMessage = await getServerResponse("play response");
+                if (playMessage.success) {
+                  updateGame(playMessage.result);
+                  setShowDialog(false);
+                } else {
+                  console.error(playMessage.error);
+                }
+              }}
+            >
+              <span>네</span>
+            </TextButton>
+            <TextButton
+              onClick={async () => {
+                emitToServer("play", {
+                  client: clientId!,
+                  action: { kind: "move animal 9", option: false },
+                });
+                const playMessage = await getServerResponse("play response");
+                if (playMessage.success) {
+                  updateGame(playMessage.result);
+                  setShowDialog(false);
+                } else {
+                  console.error(playMessage.error);
+                }
+              }}
+            >
+              <span>아니요</span>
+            </TextButton>
+          </div>
+        </>
+      );
     } else if (game.flags.four_of_a_month) {
-      // eslint-disable-next-line no-restricted-globals
-      const fourOfAMonth = confirm(`end by four of a month?`);
-      action = { kind: "four of a month", option: fourOfAMonth };
-    }
-
-    socket.emit("play", { client: clientId, action });
-    const playMessage = await getServerResponse("play response");
-    if (playMessage.success) {
-      updateGame(playMessage.result);
-    } else {
-      console.error(playMessage.error);
+      setShowDialog(true);
+      setDialogContent(
+        <>
+          <h2 className="font-black text-xl text-gray-800 mb-3">
+            총통으로 게임을 끝낼까요?
+          </h2>
+          <div className="flex justify-center">
+            <TextButton
+              style={{ minWidth: "3em", marginRight: "2em" }}
+              onClick={async () => {
+                emitToServer("play", {
+                  client: clientId!,
+                  action: { kind: "four of a month", option: true },
+                });
+                const playMessage = await getServerResponse("play response");
+                if (playMessage.success) {
+                  updateGame(playMessage.result);
+                  setShowDialog(false);
+                } else {
+                  console.error(playMessage.error);
+                }
+              }}
+            >
+              <span>네</span>
+            </TextButton>
+            <TextButton
+              onClick={async () => {
+                emitToServer("play", {
+                  client: clientId!,
+                  action: { kind: "four of a month", option: false },
+                });
+                const playMessage = await getServerResponse("play response");
+                if (playMessage.success) {
+                  updateGame(playMessage.result);
+                  setShowDialog(false);
+                } else {
+                  console.error(playMessage.error);
+                }
+              }}
+            >
+              <span>아니요</span>
+            </TextButton>
+          </div>
+        </>
+      );
     }
   }, [socket, game, updateGame]);
 
   const index = game?.players.findIndex((p) => p === clientId) as -1 | 0 | 1;
-
-  const [showLogs, setShowLogs] = useState(false);
 
   return game === null ? (
     <div className="w-full h-full">
@@ -137,6 +349,18 @@ const RoomGameStarted: React.FC<{ id: string } & AppState & ActionTypes> = ({
         clientId={clientId}
         updateGame={updateGame}
       />
+      {showDialog && (
+        <div
+          className="w-full h-full flex place-items-center fixed z-10 top-0 left-0"
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.45)",
+          }}
+        >
+          <div className="p-8 bg-white rounded-2xl w-2/3 text-center m-auto">
+            {dialogContent}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

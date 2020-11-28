@@ -16,7 +16,6 @@ import {
 import { assert } from "./utils/test";
 import { Message, Result } from "./types/server";
 import { socket } from "./socket";
-import Test from "./pages/Test";
 import NotFound from "./pages/NotFound";
 
 type AppProps = AppState & ActionTypes;
@@ -82,7 +81,6 @@ const App: React.FC<AppProps> = ({
         <Route path="/rooms/:roomId" component={Rooms} />
         <Route path="/rooms" render={() => <Redirect to="/" />} />
         <Route exact path="/" render={(props) => <Main {...props} />} />
-        <Route exact path="/test" render={(props) => <Test {...props} />} />
         <Route path="/" render={(props) => <NotFound {...props} />} />
       </Switch>
     </BrowserRouter>
