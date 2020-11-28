@@ -19,13 +19,11 @@ import GoStop from "./GoStop";
 import TextButton from "./TextButton";
 import IconButton from "./IconButton";
 import CardButton from "./CardButton";
+import { RouteComponentProps } from "react-router-dom";
 
-const RoomGameStarted: React.FC<{ id: string } & AppState & ActionTypes> = ({
-  id,
-  updateGame,
-  game,
-  clientId,
-}) => {
+const RoomGameStarted: React.FC<
+  RouteComponentProps & { id: string } & AppState & ActionTypes
+> = ({ id, updateGame, game, clientId, ...routeComponentProps }) => {
   useEffect(() => {
     const listener = (message: Result<Message["spectate game response"]>) => {
       if (message.success) {
@@ -348,6 +346,7 @@ const RoomGameStarted: React.FC<{ id: string } & AppState & ActionTypes> = ({
         player={index === -1 ? null : index}
         clientId={clientId}
         updateGame={updateGame}
+        {...routeComponentProps}
       />
       {showDialog && (
         <div

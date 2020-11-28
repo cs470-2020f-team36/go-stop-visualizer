@@ -1,5 +1,6 @@
 import React from "react";
 import { GoTriangleRight } from "react-icons/go";
+import { RouteComponentProps } from "react-router-dom";
 import { useWindowSize } from "../hooks";
 import { socket } from "../socket";
 import { Card, Game, GameAction } from "../types/game";
@@ -9,12 +10,14 @@ import { emitToServer, getServerResponse } from "../utils/server";
 import CardButton from "./CardButton";
 import TextButton from "./TextButton";
 
-const GoStop: React.FC<{
-  game: Game;
-  player: 0 | 1 | null;
-  clientId: string | null;
-  updateGame: (game: Game | null) => void;
-}> = ({ game, player, clientId, updateGame }) => {
+const GoStop: React.FC<
+  RouteComponentProps & {
+    game: Game;
+    player: 0 | 1 | null;
+    clientId: string | null;
+    updateGame: (game: Game | null) => void;
+  }
+> = ({ game, player, clientId, updateGame, ...routeComponentProps }) => {
   return (
     <div
       className="w-full h-full flex place-items-center"
@@ -29,18 +32,21 @@ const GoStop: React.FC<{
           player={player}
           clientId={clientId}
           updateGame={updateGame}
+          {...routeComponentProps}
         />
       ) : null}
     </div>
   );
 };
 
-const GameEnded: React.FC<{
-  game: Game;
-  player: 0 | 1 | null;
-  clientId: string | null;
-  updateGame: (game: Game | null) => void;
-}> = ({ game, player, clientId, updateGame }) => {
+const GameEnded: React.FC<
+  RouteComponentProps & {
+    game: Game;
+    player: 0 | 1 | null;
+    clientId: string | null;
+    updateGame: (game: Game | null) => void;
+  }
+> = ({ game, player, clientId, updateGame, history }) => {
   const involved = !!clientId && game.players.includes(clientId);
 
   return (
@@ -139,34 +145,64 @@ const GameEnded: React.FC<{
         </p>
         <p>
           {involved ? (
-            <TextButton
-              className="m-auto mt-4"
-              onClick={async () => {
-                if (!socket) return;
-                if (!clientId) return;
+            <>
+              <TextButton
+                className="m-auto mt-4"
+                onClick={async () => {
+                  if (!socket) return;
+                  if (!clientId) return;
 
-                updateGame(null);
+                  updateGame(null);
 
-                emitToServer("end game", { client: clientId });
-                const endGameMessage = await getServerResponse(
-                  "end game response"
-                );
-                if (!endGameMessage.success) {
-                  console.error(endGameMessage.error);
-                  return;
-                }
+                  emitToServer("end game", { client: clientId });
+                  const endGameMessage = await getServerResponse(
+                    "end game response"
+                  );
+                  if (!endGameMessage.success) {
+                    console.error(endGameMessage.error);
+                    return;
+                  }
 
-                emitToServer("start game", { client: clientId });
-                const startGameMessage = await getServerResponse(
-                  "start game response"
-                );
-                if (!startGameMessage.success) {
-                  console.error(startGameMessage.error);
-                }
-              }}
-            >
-              새 게임 하기
-            </TextButton>
+                  emitToServer("start game", { client: clientId });
+                  const startGameMessage = await getServerResponse(
+                    "start game response"
+                  );
+                  if (!startGameMessage.success) {
+                    console.error(startGameMessage.error);
+                  }
+                }}
+              >
+                새 게임 하기
+              </TextButton>
+              <TextButton
+                className="m-auto mt-4"
+                onClick={async () => {
+                  if (!socket) return;
+                  if (!clientId) return;
+
+                  updateGame(null);
+
+                  emitToServer("end game", { client: clientId });
+                  const endGameMessage = await getServerResponse(
+                    "end game response"
+                  );
+                  if (!endGameMessage.success) {
+                    history.push("/");
+                    return;
+                  }
+
+                  emitToServer("start game", { client: clientId });
+                  const startGameMessage = await getServerResponse(
+                    "start game response"
+                  );
+                  if (!startGameMessage.success) {
+                    console.error(startGameMessage.error);
+                  }
+                }}
+              >
+                새 게임 하기
+              </TextButton>
+            </>
           ) : null}
         </p>
       </div>

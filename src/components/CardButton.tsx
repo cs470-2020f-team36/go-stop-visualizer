@@ -1,6 +1,6 @@
 import React from "react";
 import { Card } from "../types/game";
-import { cardNameKo, cardToImageSrc } from "../utils/card";
+import { cardToImageSrc } from "../utils/card";
 
 import "./CardButton.css";
 
@@ -19,6 +19,7 @@ const CardButton: React.FC<CardButtonProps> = (props) => {
     card = "?",
     anchorBottom = false,
     hoverEnabled = true,
+    title,
     children,
     ...restProps
   } = props;
@@ -32,12 +33,13 @@ const CardButton: React.FC<CardButtonProps> = (props) => {
       }`}
     >
       <img
+        title={title}
+        alt={title}
         src={cardToImageSrc(card)}
         className="w-full h-full"
         style={{
           borderRadius: 4,
         }}
-        alt={cardNameKo(card)}
       />
     </button>
   );
