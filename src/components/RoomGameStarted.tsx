@@ -24,7 +24,7 @@ import { useToasts } from "react-toast-notifications";
 
 const RoomGameStarted: React.FC<
   RouteComponentProps & { id: string } & AppState & ActionTypes
-> = ({ id, updateGame, game, clientId, ...routeComponentProps }) => {
+> = ({ id, updateGame, game, clientId, roomId, ...routeComponentProps }) => {
   const { addToast } = useToasts();
 
   useEffect(() => {
@@ -341,23 +341,27 @@ const RoomGameStarted: React.FC<
   ) : (
     <div className="w-full h-full">
       <div className="fixed z-50">
-        {involved && <TextButton
-          size="sm"
-          onClick={async () => {
-            if (!socket) return;
-            if (!clientId) return;
-            socket.emit("end game", { client: clientId });
-            const endGameMessage = await getServerResponse("end game response");
-            if (!endGameMessage.success) {
-              addToast(endGameMessage.error, {
-                appearance: "error",
-                autoDismiss: true,
-              });
-            }
-          }}
-        >
-          End Game
-        </TextButton>}
+        {involved && (
+          <TextButton
+            size="sm"
+            onClick={async () => {
+              if (!socket) return;
+              if (!clientId) return;
+              socket.emit("end game", { client: clientId });
+              const endGameMessage = await getServerResponse(
+                "end game response"
+              );
+              if (!endGameMessage.success) {
+                addToast(endGameMessage.error, {
+                  appearance: "error",
+                  autoDismiss: true,
+                });
+              }
+            }}
+          >
+            End Game
+          </TextButton>
+        )}
       </div>
       <div className="fixed z-30 right-0 top-0">
         <IconButton
@@ -382,6 +386,7 @@ const RoomGameStarted: React.FC<
         game={game}
         player={index === -1 ? null : index}
         clientId={clientId}
+        roomId={roomId}
         updateGame={updateGame}
         {...routeComponentProps}
       />

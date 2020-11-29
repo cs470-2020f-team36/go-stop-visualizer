@@ -16,9 +16,17 @@ const GoStop: React.FC<
     game: Game;
     player: 0 | 1 | null;
     clientId: string | null;
+    roomId: string | null;
     updateGame: (game: Game | null) => void;
   }
-> = ({ game, player, clientId, updateGame, ...routeComponentProps }) => {
+> = ({
+  game,
+  player,
+  clientId,
+  roomId,
+  updateGame,
+  ...routeComponentProps
+}) => {
   return (
     <div
       className="w-full h-full flex place-items-center"
@@ -33,6 +41,7 @@ const GoStop: React.FC<
           player={player}
           clientId={clientId}
           updateGame={updateGame}
+          roomId={roomId}
           {...routeComponentProps}
         />
       ) : null}
@@ -45,9 +54,10 @@ const GameEnded: React.FC<
     game: Game;
     player: 0 | 1 | null;
     clientId: string | null;
+    roomId: string | null;
     updateGame: (game: Game | null) => void;
   }
-> = ({ game, player, clientId, updateGame, history }) => {
+> = ({ game, player, clientId, roomId, updateGame, history }) => {
   const involved = !!clientId && game.players.includes(clientId);
   const { addToast } = useToasts();
 
@@ -147,7 +157,7 @@ const GameEnded: React.FC<
         </p>
         <p>
           {involved ? (
-            <>
+            <div className="flex">
               <TextButton
                 className="m-auto mt-4"
                 onClick={async () => {
@@ -187,6 +197,7 @@ const GameEnded: React.FC<
                 onClick={async () => {
                   if (!socket) return;
                   if (!clientId) return;
+                  if (!roomId) return;
 
                   updateGame(null);
 
@@ -202,21 +213,14 @@ const GameEnded: React.FC<
                     return;
                   }
 
-                  emitToServer("start game", { client: clientId });
-                  const startGameMessage = await getServerResponse(
-                    "start game response"
-                  );
-                  if (!startGameMessage.success) {
-                    addToast(startGameMessage.error, {
-                      appearance: "error",
-                      autoDismiss: true,
-                    });
+                  if (history) {
+                    history.push(`/rooms/${roomId}`);
                   }
                 }}
               >
-                새 게임 하기
+                돌아가기
               </TextButton>
-            </>
+            </div>
           ) : null}
         </p>
       </div>
