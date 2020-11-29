@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { GoTriangleRight } from "react-icons/go";
 import { RouteComponentProps } from "react-router-dom";
 import { useToasts } from "react-toast-notifications";
@@ -8,6 +9,7 @@ import { Card, Game, GameAction } from "../types/game";
 import { cardNameKo, cardToImageSrc } from "../utils/card";
 import { hiddenHand } from "../utils/game";
 import { emitToServer, getServerResponse } from "../utils/server";
+import { capitalize } from "../utils/string";
 import CardButton from "./CardButton";
 import TextButton from "./TextButton";
 
@@ -60,6 +62,7 @@ const GameEnded: React.FC<
 > = ({ game, player, clientId, roomId, updateGame, history }) => {
   const involved = !!clientId && game.players.includes(clientId);
   const { addToast } = useToasts();
+  const { t } = useTranslation();
 
   return (
     <div
@@ -71,22 +74,24 @@ const GameEnded: React.FC<
       <div className="p-8 bg-white rounded-2xl w-2/3 text-center m-auto">
         <h2 className="font-black text-3xl text-gray-800 mb-3">
           {game.state.winner === null
-            ? "🤔 나가리"
+            ? `🤔 ${capitalize(t("push back"))}`
             : game.state.winner === player
-            ? "🌟 승리!"
+            ? `🌟 ${capitalize(t("victory"))}!`
             : 1 - game.state.winner === player
-            ? "😥 패배..."
-            : `🏆 ${game.players[game.state.winner]}의 승리!`}
+            ? `😥 ${capitalize(t("defeat"))}...`
+            : `🏆 ${game.players[game.state.winner]}${t("'s")} ${capitalize(
+                t("victory")
+              )}!`}
         </h2>
         <p>
           <span className="text-xl text-gray-800">
             {game.state.winner === null ? null : (
               <>
-                총{" "}
+                {`${capitalize(t("total"))} `}
                 <span className="font-bold">
                   {game.state.scores[game.state.winner]}
                 </span>
-                점
+                {`${t("points")}`}
               </>
             )}
           </span>
@@ -106,50 +111,64 @@ const GameEnded: React.FC<
                     factor.kind === "go-add"
                       ? factor.arg === 0
                         ? null
-                        : `고 ${factor.arg}점`
+                        : `${capitalize(t("go"))} ${factor.arg}${t("points")}`
                       : factor.kind === "go"
                       ? factor.arg <= 2
                         ? null
-                        : `고 ${Math.pow(2, factor.arg - 2)}배`
+                        : `${capitalize(t("go"))} ${Math.pow(
+                            2,
+                            factor.arg - 2
+                          )}${t("multiples")}`
                       : factor.kind === "bright"
                       ? factor.arg === 0
                         ? null
-                        : `광 ${factor.arg}점`
+                        : `${capitalize(t("brights"))} ${factor.arg}${t(
+                            "points"
+                          )}`
                       : factor.kind === "animal"
                       ? factor.arg < 5
                         ? null
-                        : `열끗 ${factor.arg - 4}점`
+                        : `${capitalize(t("animals"))} ${factor.arg - 4}${t(
+                            "points"
+                          )}`
                       : factor.kind === "ribbon"
                       ? factor.arg < 5
                         ? null
-                        : `단 ${factor.arg - 4}점`
+                        : `${capitalize(t("ribbons"))} ${factor.arg - 4}${t(
+                            "points"
+                          )}`
                       : factor.kind === "junk"
                       ? factor.arg < 10
                         ? null
-                        : `피 ${factor.arg - 9}점`
+                        : `${capitalize(t("junks"))} ${factor.arg - 9}${t(
+                            "points"
+                          )}`
                       : factor.kind === "five birds"
-                      ? `고도리 5점`
+                      ? `${capitalize(t("five birds"))} 5${t("points")}`
                       : factor.kind === "red ribbons"
-                      ? `홍단 3점`
+                      ? `${capitalize(t("red ribbons"))} 3${t("points")}`
                       : factor.kind === "blue ribbons"
-                      ? `청단 3점`
+                      ? `${capitalize(t("blue ribbons"))} 3${t("points")}`
                       : factor.kind === "plant ribbons"
-                      ? `초단 3점`
+                      ? `${capitalize(t("plant ribbons"))} 3${t("points")}`
                       : factor.kind === "shaking"
                       ? factor.arg === 0
                         ? null
-                        : `흔들기 ${Math.pow(2, factor.arg)}배`
+                        : `${capitalize(t("shaking"))} ${Math.pow(
+                            2,
+                            factor.arg
+                          )}${t("multiples")}`
                       : factor.kind === "bright penalty"
-                      ? `광박 2배`
+                      ? `${capitalize(t("bright penalty"))} 2${t("multiples")}`
                       : factor.kind === "animal penalty"
-                      ? `멍따 2배`
+                      ? `${capitalize(t("animal penalty"))} 2${t("multiples")}`
                       : factor.kind === "junk penalty"
-                      ? `피박 2배`
+                      ? `${capitalize(t("junk penalty"))} 2${t("multiples")}`
                       : factor.kind === "go penalty"
-                      ? `고박 2배`
+                      ? `${capitalize(t("go penalty"))} 2${t("multiples")}`
                       : factor.kind === "four of a month"
-                      ? `총통 10점`
-                      : `쓰리뻑 10점`
+                      ? `${capitalize(t("four of a month"))} 10${t("points")}`
+                      : `${capitalize(t("three stackings"))} 10${t("points")}`
                   )
                   .filter((x) => x !== null)
                   .join(", ")}
@@ -190,7 +209,7 @@ const GameEnded: React.FC<
                   }
                 }}
               >
-                새 게임 하기
+                {capitalize(t("new games"))}
               </TextButton>
               <TextButton
                 className="m-auto mt-4"
@@ -218,7 +237,7 @@ const GameEnded: React.FC<
                   }
                 }}
               >
-                돌아가기
+                {capitalize(t("return to room"))}
               </TextButton>
             </div>
           ) : null}
@@ -312,52 +331,55 @@ const GoStopField: React.FC<{
 const GoStopNameCard: React.FC<{ ratio: number; name: string }> = ({
   ratio,
   name,
-}) => (
-  <div
-    style={{
-      width: ratio * 106,
-      marginRight: ratio * 40,
-      height: ratio * 90 * 1.618,
-      fontSize: 24 * ratio,
-      padding: 8 * ratio,
-      lineHeight: 1.1,
-      borderRadius: 8 * ratio,
-      backgroundColor: "#29604D",
-      textAlign: "center",
-      position: "relative",
-    }}
-    className="text-white"
-  >
+}) => {
+  const { t } = useTranslation();
+  return (
     <div
       style={{
-        height: ratio * 90,
-        backgroundColor: "white",
+        width: ratio * 106,
+        marginRight: ratio * 40,
+        height: ratio * 90 * 1.618,
+        fontSize: 24 * ratio,
+        padding: 8 * ratio,
+        lineHeight: 1.1,
         borderRadius: 8 * ratio,
+        backgroundColor: "#29604D",
+        textAlign: "center",
+        position: "relative",
       }}
+      className="text-white"
     >
-      <img
-        src="https://i1.wp.com/similarpng.com/wp-content/plugins/userswp/assets/images/no_profile.png"
+      <div
         style={{
-          width: ratio * 90,
           height: ratio * 90,
+          backgroundColor: "white",
           borderRadius: 8 * ratio,
         }}
-        className="object-cover object-center"
-        alt={`${name}의 프로필 이미지`}
-      />
+      >
+        <img
+          src="https://i1.wp.com/similarpng.com/wp-content/plugins/userswp/assets/images/no_profile.png"
+          style={{
+            width: ratio * 90,
+            height: ratio * 90,
+            borderRadius: 8 * ratio,
+          }}
+          className="object-cover object-center"
+          alt={`${name}${t("'s")} ${t("profile image")}`}
+        />
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          bottom: 8 * ratio,
+          width: ratio * 90,
+        }}
+        className="truncate"
+      >
+        {name}
+      </div>
     </div>
-    <div
-      style={{
-        position: "absolute",
-        bottom: 8 * ratio,
-        width: ratio * 90,
-      }}
-      className="truncate"
-    >
-      {name}
-    </div>
-  </div>
-);
+  );
+};
 
 const GoStopScoreCard: React.FC<{
   ratio: number;
@@ -365,49 +387,53 @@ const GoStopScoreCard: React.FC<{
   go: number;
   stacking: number;
   shaking: number;
-}> = ({ ratio, score, go, stacking, shaking }) => (
-  <div
-    style={{
-      width: ratio * 106,
-      marginLeft: ratio * 40,
-      height: ratio * 90 * 1.618,
-      fontSize: 24 * ratio,
-      padding: 8 * ratio,
-      lineHeight: 1.1,
-      borderRadius: 8 * ratio,
-      backgroundColor: "#29604D",
-      fontFamily: "sans-serif",
-      textAlign: "left",
-    }}
-    className="text-white"
-  >
+}> = ({ ratio, score, go, stacking, shaking }) => {
+  const { t } = useTranslation();
+  return (
     <div
       style={{
-        fontSize: score > 99999 ? "1em" : score > 9999 ? "1.1em" : "1.3em",
-        textAlign: "center",
-        lineHeight: `${48 * ratio}px`,
-        whiteSpace: "nowrap",
-        width: "min-content",
-        marginLeft: "50%",
-        transform: "translateX(-50%)",
-        padding: `0 ${8 * ratio}px`,
+        width: ratio * 106,
+        marginLeft: ratio * 40,
+        height: ratio * 90 * 1.618,
+        fontSize: 24 * ratio,
+        padding: 8 * ratio,
+        lineHeight: 1.1,
         borderRadius: 8 * ratio,
+        backgroundColor: "#29604D",
+        fontFamily: "sans-serif",
+        textAlign: "left",
       }}
-      className="font-bold text-right"
+      className="text-white"
     >
-      {score}점
+      <div
+        style={{
+          fontSize: score > 99999 ? "1em" : score > 9999 ? "1.1em" : "1.3em",
+          textAlign: "center",
+          lineHeight: `${48 * ratio}px`,
+          whiteSpace: "nowrap",
+          width: "min-content",
+          marginLeft: "50%",
+          transform: "translateX(-50%)",
+          padding: `0 ${8 * ratio}px`,
+          borderRadius: 8 * ratio,
+        }}
+        className="font-bold text-right"
+      >
+        {score}
+        {t("pt")}
+      </div>
+      <div style={{ marginLeft: 15 * ratio, width: 60 * ratio }}>
+        🔥 <span className="font-black float-right">{go}</span>
+      </div>
+      <div style={{ marginLeft: 15 * ratio, width: 60 * ratio }}>
+        💩 <span className="font-black float-right">{stacking}</span>
+      </div>
+      <div style={{ marginLeft: 15 * ratio, width: 60 * ratio }}>
+        🔔 <span className="font-black float-right">{shaking}</span>
+      </div>
     </div>
-    <div style={{ marginLeft: 15 * ratio, width: 60 * ratio }}>
-      🔥 <span className="font-black float-right">{go}</span>
-    </div>
-    <div style={{ marginLeft: 15 * ratio, width: 60 * ratio }}>
-      💩 <span className="font-black float-right">{stacking}</span>
-    </div>
-    <div style={{ marginLeft: 15 * ratio, width: 60 * ratio }}>
-      🔔 <span className="font-black float-right">{shaking}</span>
-    </div>
-  </div>
-);
+  );
+};
 
 const GoStopCard: React.FC<{
   card: Card;
@@ -472,6 +498,7 @@ const GoStopHand: React.FC<{
   clientId,
 }) => {
   const { addToast } = useToasts();
+  const { t } = useTranslation();
   const width = mine ? 100 * ratio : 68 * ratio;
   const height = mine ? 154 * ratio : 105 * ratio;
   const gap = mine ? 12 * ratio : 8 * ratio;
@@ -519,15 +546,14 @@ const GoStopHand: React.FC<{
           const title = !action
             ? undefined
             : action.kind === "throw"
-            ? `${cardNameKo(card)} 내기`
+            ? capitalize(t("throw the card", { card }))
             : action.kind === "throw bomb"
-            ? `폭탄 내기`
+            ? capitalize(t("throw a bomb card"))
             : action.kind === "bomb"
-            ? `${action.month}월 폭탄`
-            : `${cardNameKo(card)}로 ${parseInt(
-                card.substring(1, 3),
-                10
-              )}월 흔들기`;
+            ? capitalize(t("throw a bomb of", { month: action.month }))
+            : capitalize(
+                t("shake with", { card, month: card.substring(1, 3) })
+              );
           return (
             <CardButton
               key={i}

@@ -7,6 +7,7 @@ import reportWebVitals from "./reportWebVitals";
 import { ToastProvider } from "react-toast-notifications";
 import { Provider } from "redux-zero/react";
 import store from "./store";
+import "./i18n";
 
 ReactDOM.render(
   <Provider store={store}>

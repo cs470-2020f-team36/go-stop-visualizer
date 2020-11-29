@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { connect } from "redux-zero/react";
 import useAsyncEffect from "use-async-effect";
 import { BlockLoading } from "react-loadingg";
-import { MdClose } from "react-icons/md";
+import { MdClose, MdLanguage } from "react-icons/md";
 import { IoIosArrowDown } from "react-icons/io";
 import actions, { ActionTypes } from "../actions";
 import { socket } from "../socket";
@@ -21,6 +21,8 @@ import IconButton from "./IconButton";
 import CardButton from "./CardButton";
 import { RouteComponentProps } from "react-router-dom";
 import { useToasts } from "react-toast-notifications";
+import { useTranslation } from "react-i18next";
+import { capitalize } from "../utils/string";
 
 const RoomGameStarted: React.FC<
   RouteComponentProps & { id: string } & AppState & ActionTypes
@@ -38,6 +40,8 @@ const RoomGameStarted: React.FC<
 
     return () => removeServerListener("spectate game response", listener);
   }, [id, updateGame]);
+
+  const { t, i18n } = useTranslation();
 
   const isMyTurn = game && game.players[game.state.player] === clientId;
   const [showLogs, setShowLogs] = useState(false);
@@ -57,7 +61,7 @@ const RoomGameStarted: React.FC<
       setDialogContent(
         <>
           <h2 className="font-black text-xl text-gray-800 mb-3">
-            고 하시겠습니까?
+            {t("Declare Go?")}
           </h2>
           <div className="flex justify-center">
             <TextButton
@@ -79,7 +83,7 @@ const RoomGameStarted: React.FC<
                 }
               }}
             >
-              <span>고</span>
+              <span>{capitalize(t("go"))}</span>
             </TextButton>
             <TextButton
               onClick={async () => {
@@ -99,7 +103,7 @@ const RoomGameStarted: React.FC<
                 }
               }}
             >
-              <span>스톱</span>
+              <span>{capitalize(t("stop"))}</span>
             </TextButton>
           </div>
         </>
@@ -109,9 +113,30 @@ const RoomGameStarted: React.FC<
       setDialogContent(
         <>
           <h2 className="font-black text-xl text-gray-800 mb-3">
-            흔드시겠습니까?
+            {t("Shake cards?")}
           </h2>
-          <div className="flex justify-center">
+          <div
+            style={{
+              maxWidth: "calc(80% + 2em)",
+              margin: "auto",
+              marginTop: "2em",
+            }}
+          >
+            <div
+              className="flex justify-between"
+              style={{ maxWidth: "14em", margin: "auto" }}
+            >
+              {game.state.shaking![1].map((card) => (
+                <CardButton
+                  key={card}
+                  card={card}
+                  hoverEnabled={false}
+                  style={{ maxWidth: "4em", width: "30%", cursor: "default" }}
+                />
+              ))}
+            </div>
+          </div>
+          <div className="flex justify-center mt-4">
             <TextButton
               style={{ minWidth: "3em", marginRight: "2em" }}
               onClick={async () => {
@@ -131,9 +156,10 @@ const RoomGameStarted: React.FC<
                 }
               }}
             >
-              <span>네</span>
+              <span>{capitalize(t("yes"))}</span>
             </TextButton>
             <TextButton
+              style={{ minWidth: "3em" }}
               onClick={async () => {
                 emitToServer("play", {
                   client: clientId!,
@@ -151,7 +177,7 @@ const RoomGameStarted: React.FC<
                 }
               }}
             >
-              <span>아니요</span>
+              <span>{capitalize(t("no"))}</span>
             </TextButton>
           </div>
         </>
@@ -161,7 +187,7 @@ const RoomGameStarted: React.FC<
       setDialogContent(
         <>
           <h2 className="font-black text-xl text-gray-800 mb-3">
-            가져올 패를 골라주세요.
+            {t("Please Choose a Card to Capture.")}
           </h2>
           <div
             style={{
@@ -229,7 +255,7 @@ const RoomGameStarted: React.FC<
       setDialogContent(
         <>
           <h2 className="font-black text-xl text-gray-800 mb-3">
-            9월 열끗을 쌍피로 옮길까요?
+            {t("Use Animal of September As a Double Junk?")}
           </h2>
           <div className="flex justify-center">
             <TextButton
@@ -251,9 +277,10 @@ const RoomGameStarted: React.FC<
                 }
               }}
             >
-              <span>네</span>
+              <span>{capitalize(t("yes"))}</span>
             </TextButton>
             <TextButton
+              style={{ minWidth: "3em" }}
               onClick={async () => {
                 emitToServer("play", {
                   client: clientId!,
@@ -271,7 +298,7 @@ const RoomGameStarted: React.FC<
                 }
               }}
             >
-              <span>아니요</span>
+              <span>{capitalize(t("no"))}</span>
             </TextButton>
           </div>
         </>
@@ -281,7 +308,7 @@ const RoomGameStarted: React.FC<
       setDialogContent(
         <>
           <h2 className="font-black text-xl text-gray-800 mb-3">
-            총통으로 게임을 끝낼까요?
+            {t("Finish the Game with Four-of-a-Month?")}
           </h2>
           <div className="flex justify-center">
             <TextButton
@@ -303,9 +330,10 @@ const RoomGameStarted: React.FC<
                 }
               }}
             >
-              <span>네</span>
+              <span>{capitalize(t("yes"))}</span>
             </TextButton>
             <TextButton
+              style={{ minWidth: "3em" }}
               onClick={async () => {
                 emitToServer("play", {
                   client: clientId!,
@@ -323,7 +351,7 @@ const RoomGameStarted: React.FC<
                 }
               }}
             >
-              <span>아니요</span>
+              <span>{capitalize(t("no"))}</span>
             </TextButton>
           </div>
         </>
@@ -370,6 +398,13 @@ const RoomGameStarted: React.FC<
           }}
         >
           {showLogs ? <MdClose /> : <IoIosArrowDown />}
+        </IconButton>
+        <IconButton
+          onClick={() => {
+            i18n.changeLanguage(i18n.language !== "ko" ? "ko" : "en");
+          }}
+        >
+          <MdLanguage />
         </IconButton>
       </div>
       {showLogs && (

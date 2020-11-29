@@ -1,0 +1,8 @@
+{
+  "points": " points",
+  "pt": " pt",
+  "multiples": "x",
+  "throw the card": "throw {{card, card}}",
+  "throw a bomb of": "throw a bomb of {{month, month}}",
+  "shake with": "throw {{card, card}} with shaking"
+}
