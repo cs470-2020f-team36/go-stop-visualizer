@@ -17,6 +17,7 @@ import { assert } from "./utils/test";
 import { Message, Result } from "./types/server";
 import { socket } from "./socket";
 import NotFound from "./pages/NotFound";
+import { useToasts } from "react-toast-notifications";
 
 type AppProps = AppState & ActionTypes;
 
@@ -26,6 +27,8 @@ const App: React.FC<AppProps> = ({
   updateRoomId,
   updateRooms,
 }) => {
+  const { addToast } = useToasts();
+
   // server check
   useAsyncEffect(async () => {
     if (!socket) return;
@@ -35,8 +38,16 @@ const App: React.FC<AppProps> = ({
         assert(welcomeMessage.message.split(" ")[1].slice(0, -1) === socket.id);
         console.log("connected!");
       } catch {
-        console.error("Socket id does not match");
+        addToast("Socket id does not match", {
+          appearance: "error",
+          autoDismiss: true,
+        });
       }
+    } else {
+      addToast(welcomeMessage.error, {
+        appearance: "error",
+        autoDismiss: true,
+      });
     }
   }, [socket.connected]);
 
@@ -54,7 +65,10 @@ const App: React.FC<AppProps> = ({
     if (myRoomMessage.success) {
       updateRoomId(myRoomMessage.result?.id ?? null);
     } else {
-      console.error(myRoomMessage.error);
+      addToast(myRoomMessage.error, {
+        appearance: "error",
+        autoDismiss: true,
+      });
     }
   }, [clientId]);
 

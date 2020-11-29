@@ -6,7 +6,7 @@ import { AppState } from "../store";
 import { emitToServer, getServerResponse } from "../utils/server";
 import { BlockLoading } from "react-loadingg";
 import IconButton from "../components/IconButton";
-import { BiLogIn, BiLogOut } from "react-icons/bi";
+import { BiHome, BiLogIn, BiLogOut } from "react-icons/bi";
 import { BsPlayFill } from "react-icons/bs";
 import Layout from "../components/Layout";
 import Header from "../components/Header";
@@ -15,6 +15,7 @@ import { Room } from "../types/server";
 import { goToMyRoom } from "../hooks";
 import Table from "../components/Table";
 import RoomGameStarted from "../components/RoomGameStarted";
+import { useToasts } from "react-toast-notifications";
 
 const Rooms: React.FC<
   RouteComponentProps<{
@@ -32,6 +33,7 @@ const Rooms: React.FC<
     history,
     updateRoomId,
   } = props;
+  const { addToast } = useToasts();
   const room: Room | null =
     rooms?.find((room) => room.id === match.params.roomId) ?? null;
 
@@ -45,6 +47,9 @@ const Rooms: React.FC<
     <Layout>
       <Header>
         <div className="flex">
+          <IconButton className="mr-4" onClick={() => history.push("/")}>
+            <BiHome />
+          </IconButton>
           <TextInput
             className="w-64 my-1"
             placeholder="Client ID"
@@ -53,11 +58,11 @@ const Rooms: React.FC<
               updateClientId(event.target.value);
             }}
           />
-          {roomId !== match.params.roomId && (
+          {roomId && (
             <IconButton
               className="ml-4"
               onClick={goToMyRoom(
-                { history, clientId, roomId, rooms, updateRoomId },
+                { history, clientId, roomId, rooms, updateRoomId, addToast },
                 false
               )}
             >
@@ -78,7 +83,10 @@ const Rooms: React.FC<
                     "start game response"
                   );
                   if (!startGameMessage.success) {
-                    console.error(startGameMessage.error);
+                    addToast(startGameMessage.error, {
+                      appearance: "error",
+                      autoDismiss: true,
+                    });
                   }
                 }}
                 className="ml-4"
@@ -96,7 +104,10 @@ const Rooms: React.FC<
                       history.replace("/");
                     }, 300);
                   } else {
-                    console.error(exitRoomMessage.error);
+                    addToast(exitRoomMessage.error, {
+                      appearance: "error",
+                      autoDismiss: true,
+                    });
                   }
                 }}
                 className="ml-4"
@@ -119,7 +130,10 @@ const Rooms: React.FC<
                   if (joinRoomMessage.success) {
                     updateRoomId(room.id);
                   } else {
-                    console.error(joinRoomMessage.error);
+                    addToast(joinRoomMessage.error, {
+                      appearance: "error",
+                      autoDismiss: true,
+                    });
                   }
                 }}
                 className="ml-4"

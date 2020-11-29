@@ -1,6 +1,7 @@
 import React from "react";
 import { GoTriangleRight } from "react-icons/go";
 import { RouteComponentProps } from "react-router-dom";
+import { useToasts } from "react-toast-notifications";
 import { useWindowSize } from "../hooks";
 import { socket } from "../socket";
 import { Card, Game, GameAction } from "../types/game";
@@ -48,6 +49,7 @@ const GameEnded: React.FC<
   }
 > = ({ game, player, clientId, updateGame, history }) => {
   const involved = !!clientId && game.players.includes(clientId);
+  const { addToast } = useToasts();
 
   return (
     <div
@@ -159,7 +161,10 @@ const GameEnded: React.FC<
                     "end game response"
                   );
                   if (!endGameMessage.success) {
-                    console.error(endGameMessage.error);
+                    addToast(endGameMessage.error, {
+                      appearance: "error",
+                      autoDismiss: true,
+                    });
                     return;
                   }
 
@@ -168,7 +173,10 @@ const GameEnded: React.FC<
                     "start game response"
                   );
                   if (!startGameMessage.success) {
-                    console.error(startGameMessage.error);
+                    addToast(startGameMessage.error, {
+                      appearance: "error",
+                      autoDismiss: true,
+                    });
                   }
                 }}
               >
@@ -187,7 +195,10 @@ const GameEnded: React.FC<
                     "end game response"
                   );
                   if (!endGameMessage.success) {
-                    history.push("/");
+                    addToast(endGameMessage.error, {
+                      appearance: "error",
+                      autoDismiss: true,
+                    });
                     return;
                   }
 
@@ -196,7 +207,10 @@ const GameEnded: React.FC<
                     "start game response"
                   );
                   if (!startGameMessage.success) {
-                    console.error(startGameMessage.error);
+                    addToast(startGameMessage.error, {
+                      appearance: "error",
+                      autoDismiss: true,
+                    });
                   }
                 }}
               >
@@ -453,6 +467,7 @@ const GoStopHand: React.FC<{
   turn,
   clientId,
 }) => {
+  const { addToast } = useToasts();
   const width = mine ? 100 * ratio : 68 * ratio;
   const height = mine ? 154 * ratio : 105 * ratio;
   const gap = mine ? 12 * ratio : 8 * ratio;
@@ -538,7 +553,10 @@ const GoStopHand: React.FC<{
                         "play response"
                       );
                       if (!playMessage.success) {
-                        console.error(playMessage.error);
+                        addToast(playMessage.error, {
+                          appearance: "error",
+                          autoDismiss: true,
+                        });
                       }
                     }
               }

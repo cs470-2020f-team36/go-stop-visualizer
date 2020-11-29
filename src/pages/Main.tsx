@@ -2,7 +2,7 @@ import React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { connect } from "redux-zero/react";
 import { BlockLoading } from "react-loadingg";
-import { BiLogIn } from "react-icons/bi";
+import { BiHome, BiLogIn } from "react-icons/bi";
 import { GrOverview } from "react-icons/gr";
 
 import actions, { ActionTypes } from "../actions";
@@ -15,6 +15,7 @@ import useAsyncEffect from "use-async-effect";
 import { goToMyRoom } from "../hooks";
 import Layout from "../components/Layout";
 import Header from "../components/Header";
+import { useToasts } from "react-toast-notifications";
 
 type MainProps = AppState & ActionTypes;
 const Main: React.FC<RouteComponentProps & MainProps> = ({
@@ -25,8 +26,13 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
   updateRoomId,
   updateClientId,
 }) => {
+  const { addToast } = useToasts();
+
   useAsyncEffect(
-    goToMyRoom({ history, clientId, roomId, rooms, updateRoomId }, true),
+    goToMyRoom(
+      { history, clientId, roomId, rooms, updateRoomId, addToast },
+      true
+    ),
     [roomId, clientId, history, rooms, updateRoomId]
   );
 
@@ -34,6 +40,9 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
     <Layout>
       <Header>
         <div className="flex">
+          <IconButton className="mr-4" onClick={() => history.push("/")}>
+            <BiHome />
+          </IconButton>
           <TextInput
             className="w-64 my-1"
             placeholder="Client ID"
@@ -42,15 +51,17 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
               updateClientId(event.target.value);
             }}
           />
-          <IconButton
-            className="ml-4"
-            onClick={goToMyRoom(
-              { history, clientId, roomId, rooms, updateRoomId },
-              false
-            )}
-          >
-            <BiLogIn />
-          </IconButton>
+          {roomId && (
+            <IconButton
+              className="ml-4"
+              onClick={goToMyRoom(
+                { history, clientId, roomId, rooms, updateRoomId, addToast },
+                false
+              )}
+            >
+              <BiLogIn />
+            </IconButton>
+          )}
         </div>
       </Header>
       <main>
@@ -89,8 +100,20 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
                   <Table.Data className="p-2 flex justify-end">
                     <IconButton
                       onClick={async () => {
-                        if (roomId) return;
-                        if (!clientId) return;
+                        if (roomId) {
+                          addToast("You are already in a different room.", {
+                            appearance: "error",
+                            autoDismiss: true,
+                          });
+                          return;
+                        }
+                        if (!clientId) {
+                          addToast("You did not set the clientId yet.", {
+                            appearance: "error",
+                            autoDismiss: true,
+                          });
+                          return;
+                        }
 
                         emitToServer("join room", {
                           client: clientId,
@@ -103,7 +126,10 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
                           updateRoomId(room.id);
                           history.push(`/rooms/${room.id}`);
                         } else {
-                          console.error(newRoomId.error);
+                          addToast(newRoomId.error, {
+                            appearance: "error",
+                            autoDismiss: true,
+                          });
                         }
                       }}
                     >
@@ -126,7 +152,20 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
                   <button
                     className="w-40 bg-white tracking-wide text-gray-800 font-bold rounded border-b-2 border-blue-500 hover:border-blue-600 hover:bg-blue-500 hover:text-white shadow-md py-2 px-6 inline-flex items-center m-auto"
                     onClick={async () => {
-                      if (!clientId) return;
+                      if (roomId) {
+                        addToast("You are already in a different room.", {
+                          appearance: "error",
+                          autoDismiss: true,
+                        });
+                        return;
+                      }
+                      if (!clientId) {
+                        addToast("You did not set the clientId yet.", {
+                          appearance: "error",
+                          autoDismiss: true,
+                        });
+                        return;
+                      }
 
                       emitToServer("make room", { client: clientId });
                       const newRoomId = await getServerResponse(
@@ -138,7 +177,10 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
                           history.push(`/rooms/${newRoomId.result.id}`);
                         }, 200);
                       } else {
-                        console.error(newRoomId.error);
+                        addToast(newRoomId.error, {
+                          appearance: "error",
+                          autoDismiss: true,
+                        });
                       }
                     }}
                   >

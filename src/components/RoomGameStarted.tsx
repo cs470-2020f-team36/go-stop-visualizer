@@ -20,10 +20,13 @@ import TextButton from "./TextButton";
 import IconButton from "./IconButton";
 import CardButton from "./CardButton";
 import { RouteComponentProps } from "react-router-dom";
+import { useToasts } from "react-toast-notifications";
 
 const RoomGameStarted: React.FC<
   RouteComponentProps & { id: string } & AppState & ActionTypes
 > = ({ id, updateGame, game, clientId, ...routeComponentProps }) => {
+  const { addToast } = useToasts();
+
   useEffect(() => {
     const listener = (message: Result<Message["spectate game response"]>) => {
       if (message.success) {
@@ -69,7 +72,10 @@ const RoomGameStarted: React.FC<
                   updateGame(playMessage.result);
                   setShowDialog(false);
                 } else {
-                  console.error(playMessage.error);
+                  addToast(playMessage.error, {
+                    appearance: "error",
+                    autoDismiss: true,
+                  });
                 }
               }}
             >
@@ -86,7 +92,10 @@ const RoomGameStarted: React.FC<
                   updateGame(playMessage.result);
                   setShowDialog(false);
                 } else {
-                  console.error(playMessage.error);
+                  addToast(playMessage.error, {
+                    appearance: "error",
+                    autoDismiss: true,
+                  });
                 }
               }}
             >
@@ -115,7 +124,10 @@ const RoomGameStarted: React.FC<
                   updateGame(playMessage.result);
                   setShowDialog(false);
                 } else {
-                  console.error(playMessage.error);
+                  addToast(playMessage.error, {
+                    appearance: "error",
+                    autoDismiss: true,
+                  });
                 }
               }}
             >
@@ -132,7 +144,10 @@ const RoomGameStarted: React.FC<
                   updateGame(playMessage.result);
                   setShowDialog(false);
                 } else {
-                  console.error(playMessage.error);
+                  addToast(playMessage.error, {
+                    appearance: "error",
+                    autoDismiss: true,
+                  });
                 }
               }}
             >
@@ -175,7 +190,10 @@ const RoomGameStarted: React.FC<
                     updateGame(playMessage.result);
                     setShowDialog(false);
                   } else {
-                    console.error(playMessage.error);
+                    addToast(playMessage.error, {
+                      appearance: "error",
+                      autoDismiss: true,
+                    });
                   }
                 }}
               />
@@ -195,7 +213,10 @@ const RoomGameStarted: React.FC<
                     updateGame(playMessage.result);
                     setShowDialog(false);
                   } else {
-                    console.error(playMessage.error);
+                    addToast(playMessage.error, {
+                      appearance: "error",
+                      autoDismiss: true,
+                    });
                   }
                 }}
               />
@@ -223,7 +244,10 @@ const RoomGameStarted: React.FC<
                   updateGame(playMessage.result);
                   setShowDialog(false);
                 } else {
-                  console.error(playMessage.error);
+                  addToast(playMessage.error, {
+                    appearance: "error",
+                    autoDismiss: true,
+                  });
                 }
               }}
             >
@@ -240,7 +264,10 @@ const RoomGameStarted: React.FC<
                   updateGame(playMessage.result);
                   setShowDialog(false);
                 } else {
-                  console.error(playMessage.error);
+                  addToast(playMessage.error, {
+                    appearance: "error",
+                    autoDismiss: true,
+                  });
                 }
               }}
             >
@@ -269,7 +296,10 @@ const RoomGameStarted: React.FC<
                   updateGame(playMessage.result);
                   setShowDialog(false);
                 } else {
-                  console.error(playMessage.error);
+                  addToast(playMessage.error, {
+                    appearance: "error",
+                    autoDismiss: true,
+                  });
                 }
               }}
             >
@@ -286,7 +316,10 @@ const RoomGameStarted: React.FC<
                   updateGame(playMessage.result);
                   setShowDialog(false);
                 } else {
-                  console.error(playMessage.error);
+                  addToast(playMessage.error, {
+                    appearance: "error",
+                    autoDismiss: true,
+                  });
                 }
               }}
             >
@@ -299,6 +332,7 @@ const RoomGameStarted: React.FC<
   }, [socket, game, updateGame]);
 
   const index = game?.players.findIndex((p) => p === clientId) as -1 | 0 | 1;
+  const involved = !!clientId && game?.players.includes(clientId);
 
   return game === null ? (
     <div className="w-full h-full">
@@ -307,7 +341,7 @@ const RoomGameStarted: React.FC<
   ) : (
     <div className="w-full h-full">
       <div className="fixed z-50">
-        <TextButton
+        {involved && <TextButton
           size="sm"
           onClick={async () => {
             if (!socket) return;
@@ -315,12 +349,15 @@ const RoomGameStarted: React.FC<
             socket.emit("end game", { client: clientId });
             const endGameMessage = await getServerResponse("end game response");
             if (!endGameMessage.success) {
-              console.error(endGameMessage.error);
+              addToast(endGameMessage.error, {
+                appearance: "error",
+                autoDismiss: true,
+              });
             }
           }}
         >
           End Game
-        </TextButton>
+        </TextButton>}
       </div>
       <div className="fixed z-30 right-0 top-0">
         <IconButton

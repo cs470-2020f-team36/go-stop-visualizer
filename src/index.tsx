@@ -4,12 +4,15 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
+import { ToastProvider } from "react-toast-notifications";
 import { Provider } from "redux-zero/react";
 import store from "./store";
 
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <ToastProvider>
+      <App />
+    </ToastProvider>
   </Provider>,
   document.getElementById("root")
 );

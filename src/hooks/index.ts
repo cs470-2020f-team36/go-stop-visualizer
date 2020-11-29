@@ -1,19 +1,26 @@
 import { useState, useEffect } from "react";
 import { RouteComponentProps } from "react-router-dom";
+import { AddToast } from "react-toast-notifications";
 import { ActionTypes } from "../actions";
 import { AppState } from "../store";
 import { emitToServer, getServerResponse } from "../utils/server";
 
 type GoToMyRoomProps = Pick<RouteComponentProps, "history"> &
   Pick<AppState, "clientId" | "roomId" | "rooms"> &
-  Pick<ActionTypes, "updateRoomId">;
+  Pick<ActionTypes, "updateRoomId"> & {
+    addToast: AddToast
+  };
 
 export const goToMyRoom = (
-  { history, clientId, roomId, rooms, updateRoomId }: GoToMyRoomProps,
+  { history, clientId, roomId, rooms, updateRoomId, addToast }: GoToMyRoomProps,
   onlyIfGameStarted: boolean
 ) => async () => {
   if (roomId && rooms?.find((room) => room.id === roomId)?.gameStarted) {
     history.push(`/rooms/${roomId}`);
+    addToast("There is a game going on.", {
+      appearance: "info",
+      autoDismiss: true,
+    });
     return;
   }
 
@@ -30,11 +37,12 @@ export const goToMyRoom = (
       (myRoomMessage.result?.gameStarted || !onlyIfGameStarted)
     ) {
       history.push(`/rooms/${myRoomMessage.result?.id}`);
-    } else if (!myRoomMessage.result?.id) {
-      console.error("not joined");
     }
   } else {
-    console.error(myRoomMessage.error);
+    addToast(myRoomMessage.error, {
+      appearance: "info",
+      autoDismiss: true,
+    });
   }
 };
 
