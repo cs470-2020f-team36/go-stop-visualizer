@@ -100,6 +100,10 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
                   <Table.Data className="p-2 flex justify-end">
                     <IconButton
                       onClick={async () => {
+                        if (roomId === room.id) {
+                          history.push(`/rooms/${room.id}`);
+                          return;
+                        }
                         if (roomId) {
                           addToast("You are already in a different room.", {
                             appearance: "error",
@@ -175,7 +179,7 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
                         updateRoomId(newRoomId.result.id);
                         setTimeout(() => {
                           history.push(`/rooms/${newRoomId.result.id}`);
-                        }, 200);
+                        }, 1000);
                       } else {
                         addToast(newRoomId.error, {
                           appearance: "error",
