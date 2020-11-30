@@ -71,11 +71,12 @@ const RoomGameStarted: React.FC<
                   client: clientId!,
                   action: { kind: "go", option: true },
                 });
+                setShowDialog(false);
                 const playMessage = await getServerResponse("play response");
                 if (playMessage.success) {
                   updateGame(playMessage.result);
-                  setShowDialog(false);
                 } else {
+                  setShowDialog(true);
                   addToast(playMessage.error, {
                     appearance: "error",
                     autoDismiss: true,
@@ -91,11 +92,12 @@ const RoomGameStarted: React.FC<
                   client: clientId!,
                   action: { kind: "go", option: false },
                 });
+                setShowDialog(false);
                 const playMessage = await getServerResponse("play response");
                 if (playMessage.success) {
                   updateGame(playMessage.result);
-                  setShowDialog(false);
                 } else {
+                  setShowDialog(true);
                   addToast(playMessage.error, {
                     appearance: "error",
                     autoDismiss: true,
@@ -144,11 +146,12 @@ const RoomGameStarted: React.FC<
                   client: clientId!,
                   action: { kind: "shaking", option: true },
                 });
+                setShowDialog(false);
                 const playMessage = await getServerResponse("play response");
                 if (playMessage.success) {
                   updateGame(playMessage.result);
-                  setShowDialog(false);
                 } else {
+                  setShowDialog(true);
                   addToast(playMessage.error, {
                     appearance: "error",
                     autoDismiss: true,
@@ -165,11 +168,12 @@ const RoomGameStarted: React.FC<
                   client: clientId!,
                   action: { kind: "shaking", option: false },
                 });
+                setShowDialog(false);
                 const playMessage = await getServerResponse("play response");
                 if (playMessage.success) {
                   updateGame(playMessage.result);
-                  setShowDialog(false);
                 } else {
+                  setShowDialog(true);
                   addToast(playMessage.error, {
                     appearance: "error",
                     autoDismiss: true,
@@ -211,11 +215,12 @@ const RoomGameStarted: React.FC<
                       match: (game.actions[0] as GameActionSelectMatch).match,
                     },
                   });
+                  setShowDialog(false);
                   const playMessage = await getServerResponse("play response");
                   if (playMessage.success) {
                     updateGame(playMessage.result);
-                    setShowDialog(false);
                   } else {
+                    setShowDialog(true);
                     addToast(playMessage.error, {
                       appearance: "error",
                       autoDismiss: true,
@@ -234,11 +239,12 @@ const RoomGameStarted: React.FC<
                       match: (game.actions[1] as GameActionSelectMatch).match,
                     },
                   });
+                  setShowDialog(false);
                   const playMessage = await getServerResponse("play response");
                   if (playMessage.success) {
                     updateGame(playMessage.result);
-                    setShowDialog(false);
                   } else {
+                    setShowDialog(true);
                     addToast(playMessage.error, {
                       appearance: "error",
                       autoDismiss: true,
@@ -265,11 +271,12 @@ const RoomGameStarted: React.FC<
                   client: clientId!,
                   action: { kind: "move animal 9", option: true },
                 });
+                setShowDialog(false);
                 const playMessage = await getServerResponse("play response");
                 if (playMessage.success) {
                   updateGame(playMessage.result);
-                  setShowDialog(false);
                 } else {
+                  setShowDialog(true);
                   addToast(playMessage.error, {
                     appearance: "error",
                     autoDismiss: true,
@@ -286,11 +293,12 @@ const RoomGameStarted: React.FC<
                   client: clientId!,
                   action: { kind: "move animal 9", option: false },
                 });
+                setShowDialog(false);
                 const playMessage = await getServerResponse("play response");
                 if (playMessage.success) {
                   updateGame(playMessage.result);
-                  setShowDialog(false);
                 } else {
+                  setShowDialog(true);
                   addToast(playMessage.error, {
                     appearance: "error",
                     autoDismiss: true,
@@ -318,11 +326,12 @@ const RoomGameStarted: React.FC<
                   client: clientId!,
                   action: { kind: "four of a month", option: true },
                 });
+                setShowDialog(false);
                 const playMessage = await getServerResponse("play response");
                 if (playMessage.success) {
                   updateGame(playMessage.result);
-                  setShowDialog(false);
                 } else {
+                  setShowDialog(true);
                   addToast(playMessage.error, {
                     appearance: "error",
                     autoDismiss: true,
@@ -339,11 +348,12 @@ const RoomGameStarted: React.FC<
                   client: clientId!,
                   action: { kind: "four of a month", option: false },
                 });
+                setShowDialog(false);
                 const playMessage = await getServerResponse("play response");
                 if (playMessage.success) {
                   updateGame(playMessage.result);
-                  setShowDialog(false);
                 } else {
+                  setShowDialog(true);
                   addToast(playMessage.error, {
                     appearance: "error",
                     autoDismiss: true,

@@ -29,6 +29,28 @@ const App: React.FC<AppProps> = ({
 }) => {
   const { addToast } = useToasts();
 
+  // preload images
+  useEffect(() => {
+    const images = [
+      ...[2, 4, 5, 6, 7, 8, 9, 10, 12].map(
+        (m) => `A${m.toString().padStart(2, "0")}`
+      ),
+      ...[1, 3, 8, 11, 12].map((m) => `B${m.toString().padStart(2, "0")}`),
+      ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        .map((m) => `J${m.toString().padStart(2, "0")}`)
+        .map((s) => [s + "0", s + "1"])
+        .flat(),
+      ...["J110", "J111", "J112", "J120"],
+      ...[1, 2, 3, 4, 5, 6, 7, 9, 10, 12].map(
+        (m) => `R${m.toString().padStart(2, "0")}`
+      ),
+      ...["bomb", "bonus2", "bonus3", "hidden"],
+    ];
+    images.forEach((slug) => {
+      new Image().src = `/images/cards/${slug}.png`;
+    });
+  }, []);
+
   // server check
   useAsyncEffect(async () => {
     if (!socket) return;

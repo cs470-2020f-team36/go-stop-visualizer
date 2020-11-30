@@ -33,7 +33,7 @@
   "profile image": "프로필 이미지",
   "throw the card": "{{card, card}} 내기",
   "throw a bomb card": "폭탄 내기",
-  "throw a bomb of": "{{month, month}}월 폭탄",
+  "throw a bomb of": "{{month, month}} 폭탄",
   "shake with": "{{card, card}} 패로 {{month, month}} 흔들기",
   "yes": "네",
   "no": "아니요",

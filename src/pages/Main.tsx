@@ -179,7 +179,7 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
                         updateRoomId(newRoomId.result.id);
                         setTimeout(() => {
                           history.push(`/rooms/${newRoomId.result.id}`);
-                        }, 1000);
+                        }, 300);
                       } else {
                         addToast(newRoomId.error, {
                           appearance: "error",
