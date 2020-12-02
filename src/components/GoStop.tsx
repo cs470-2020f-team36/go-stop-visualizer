@@ -330,9 +330,15 @@ const GoStopField: React.FC<{
 
 const GoStopNameCard: React.FC<{ ratio: number; name: string }> = ({
   ratio,
-  name,
+  name: name_,
 }) => {
   const { t } = useTranslation();
+  const name =
+    name_ === process.env.REACT_APP_AI_AGENT_ID ? "AlphaGoStop" : name_;
+  const avatar =
+    name_ === process.env.REACT_APP_AI_AGENT_ID
+      ? "/images/ai_image.jpg"
+      : "https://i1.wp.com/similarpng.com/wp-content/plugins/userswp/assets/images/no_profile.png";
   return (
     <div
       style={{
@@ -357,7 +363,7 @@ const GoStopNameCard: React.FC<{ ratio: number; name: string }> = ({
         }}
       >
         <img
-          src="https://i1.wp.com/similarpng.com/wp-content/plugins/userswp/assets/images/no_profile.png"
+          src={avatar}
           style={{
             width: ratio * 90,
             height: ratio * 90,
