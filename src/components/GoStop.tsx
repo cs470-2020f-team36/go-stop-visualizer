@@ -5,9 +5,9 @@ import { RouteComponentProps } from "react-router-dom";
 import { useToasts } from "react-toast-notifications";
 import { useWindowSize } from "../hooks";
 import { socket } from "../socket";
-import { Card, Game, GameAction } from "../types/game";
+import { ALL_ACTIONS, Card, Game, GameAction } from "../types/game";
 import { cardNameKo, cardToImageSrc } from "../utils/card";
-import { hiddenHand } from "../utils/game";
+import { actionNameEn, actionNameKo, hiddenHand } from "../utils/game";
 import { emitToServer, getServerResponse } from "../utils/server";
 import { capitalize } from "../utils/string";
 import CardButton from "./CardButton";
@@ -15,6 +15,7 @@ import TextButton from "./TextButton";
 
 const GoStop: React.FC<
   RouteComponentProps & {
+    peep: boolean;
     game: Game;
     player: 0 | 1 | null;
     clientId: string | null;
@@ -22,6 +23,7 @@ const GoStop: React.FC<
     updateGame: (game: Game | null) => void;
   }
 > = ({
+  peep,
   game,
   player,
   clientId,
@@ -36,7 +38,12 @@ const GoStop: React.FC<
         backgroundColor: "#3B7157",
       }}
     >
-      <GoStopField game={game} player={player} clientId={clientId} />
+      <GoStopField
+        peep={peep}
+        game={game}
+        player={player}
+        clientId={clientId}
+      />
       {game.state.ended ? (
         <GameEnded
           game={game}
@@ -174,7 +181,7 @@ const GameEnded: React.FC<
                   .join(", ")}
           </span>
         </p>
-        <p>
+        <div>
           {involved ? (
             <div className="flex">
               <TextButton
@@ -241,24 +248,27 @@ const GameEnded: React.FC<
               </TextButton>
             </div>
           ) : null}
-        </p>
+        </div>
       </div>
     </div>
   );
 };
 
 const GoStopField: React.FC<{
+  peep: boolean;
   game: Game;
   player: 0 | 1 | null;
   clientId: string | null;
-}> = ({ game, player, clientId }) => {
+}> = ({ peep, game, player, clientId }) => {
+  const { t, i18n } = useTranslation();
+
   const BASE_WIDTH = 1258;
   const BASE_HEIGHT = 1327 + (player === null ? -53 : 0);
 
   const windowSize = useWindowSize();
   const ratio = Math.min(
     (windowSize.width - 32) / BASE_WIDTH,
-    (windowSize.height - 32) / BASE_HEIGHT
+    (windowSize.height - 112) / BASE_HEIGHT
   );
   const bottom = player ?? 1;
   const top = bottom === 0 ? 1 : 0;
@@ -272,9 +282,59 @@ const GoStopField: React.FC<{
         padding: 16,
       }}
     >
+      {peep && (
+        <>
+          <div
+            className="fixed right-0 top-0 text-xs overflow-y-auto z-20 bg-white text-white bg-opacity-25 p-4 rounded-xl"
+            style={{
+              height: "10rem",
+              width: "15rem",
+              top: "5rem",
+              left: "1rem",
+            }}
+          >
+            <pre className="break-all whitespace-pre-wrap">
+              {!!game.estimate &&
+                (() => {
+                  const policy = game.estimate[0]
+                    .map(
+                      (v, i) =>
+                        [
+                          (i18n.language === "ko"
+                            ? actionNameKo
+                            : actionNameEn)(ALL_ACTIONS[i]),
+                          v,
+                        ] as [string, number]
+                    )
+                    .filter(([i, v]) => v !== 0)
+                    .sort((a, b) => b[1] - a[1]);
+                  const res = policy
+                    .slice(0, 5)
+                    .map(
+                      ([action, prob], i) =>
+                        `${i}. ${action} (${prob.toFixed(4)})`
+                    )
+                    .join("\n");
+                  return res;
+                })()}
+            </pre>
+          </div>
+          <div
+            className="fixed text-center text-white"
+            style={{
+              marginTop: -ratio * 48,
+              fontSize: ratio * 28,
+              width: "calc(100% - 32px)",
+              maxWidth: ratio * BASE_WIDTH,
+            }}
+          >
+            {t("Estimated score")}: {!!game.estimate ? game.estimate[1] : "-"}
+          </div>
+        </>
+      )}
       <GoStopHand
         ratio={ratio}
-        hand={hiddenHand(game, top)}
+        hand={hiddenHand(game, top, peep)}
         clientId={clientId}
         turn={game.state.player === top}
       />
@@ -317,7 +377,9 @@ const GoStopField: React.FC<{
       <GoStopHand
         ratio={ratio}
         hand={
-          player !== null ? game.board.hands[bottom] : hiddenHand(game, bottom)
+          player !== null
+            ? game.board.hands[bottom]
+            : hiddenHand(game, bottom, peep)
         }
         mine={player !== null}
         actions={game.state.player === player ? game.actions : []}

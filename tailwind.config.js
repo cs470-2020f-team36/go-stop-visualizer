@@ -9,6 +9,10 @@ module.exports = {
       screens: {
         xs: { max: "400px" },
       },
+      opacity: {
+        15: "0.15",
+        35: "0.35",
+      },
     },
   },
 };

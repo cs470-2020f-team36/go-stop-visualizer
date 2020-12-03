@@ -16,6 +16,7 @@ import { goToMyRoom } from "../hooks";
 import Layout from "../components/Layout";
 import Header from "../components/Header";
 import { useToasts } from "react-toast-notifications";
+import TextButton from "../components/TextButton";
 
 type MainProps = AppState & ActionTypes;
 const Main: React.FC<RouteComponentProps & MainProps> = ({
@@ -93,52 +94,61 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
                     </span>
                   </Table.Data>
                   <Table.Data className="w-1/4">
-                    <span className="text-gray-700 px-6 py-3 flex items-center">
-                      {room.players.length}/2
-                    </span>
+                    {room.gameStarted ? (
+                      <span className="text-gray-500 line-through px-6 py-3 flex items-center">
+                        {room.players.length}/2
+                      </span>
+                    ) : (
+                      <span className="text-gray-700 px-6 py-3 flex items-center">
+                        {room.players.length}/2
+                      </span>
+                    )}
                   </Table.Data>
                   <Table.Data className="p-2 flex justify-end">
-                    <IconButton
-                      onClick={async () => {
-                        if (roomId === room.id) {
-                          history.push(`/rooms/${room.id}`);
-                          return;
-                        }
-                        if (roomId) {
-                          addToast("You are already in a different room.", {
-                            appearance: "error",
-                            autoDismiss: true,
-                          });
-                          return;
-                        }
-                        if (!clientId) {
-                          addToast("You did not set the clientId yet.", {
-                            appearance: "error",
-                            autoDismiss: true,
-                          });
-                          return;
-                        }
+                    {!room.gameStarted && (
+                      <IconButton
+                        className="mr-3"
+                        onClick={async () => {
+                          if (roomId === room.id) {
+                            history.push(`/rooms/${room.id}`);
+                            return;
+                          }
+                          if (roomId) {
+                            addToast("You are already in a different room.", {
+                              appearance: "error",
+                              autoDismiss: true,
+                            });
+                            return;
+                          }
+                          if (!clientId) {
+                            addToast("You did not set the clientId yet.", {
+                              appearance: "error",
+                              autoDismiss: true,
+                            });
+                            return;
+                          }
 
-                        emitToServer("join room", {
-                          client: clientId,
-                          room: room.id,
-                        });
-                        const newRoomId = await getServerResponse(
-                          "join room response"
-                        );
-                        if (newRoomId.success) {
-                          updateRoomId(room.id);
-                          history.push(`/rooms/${room.id}`);
-                        } else {
-                          addToast(newRoomId.error, {
-                            appearance: "error",
-                            autoDismiss: true,
+                          emitToServer("join room", {
+                            client: clientId,
+                            room: room.id,
                           });
-                        }
-                      }}
-                    >
-                      <BiLogIn />
-                    </IconButton>
+                          const newRoomId = await getServerResponse(
+                            "join room response"
+                          );
+                          if (newRoomId.success) {
+                            updateRoomId(room.id);
+                            history.push(`/rooms/${room.id}`);
+                          } else {
+                            addToast(newRoomId.error, {
+                              appearance: "error",
+                              autoDismiss: true,
+                            });
+                          }
+                        }}
+                      >
+                        <BiLogIn />
+                      </IconButton>
+                    )}
                     <IconButton
                       onClick={() => {
                         history.push(`/rooms/${room.id}`);
@@ -153,8 +163,7 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
             <Table.Row>
               <Table.Data className="w-full" colSpan={3}>
                 <div className="h-24 flex items-center justify-center">
-                  <button
-                    className="w-40 bg-white tracking-wide text-gray-800 font-bold rounded border-b-2 border-blue-500 hover:border-blue-600 hover:bg-blue-500 hover:text-white shadow-md py-2 px-6 inline-flex items-center m-auto"
+                  <TextButton
                     onClick={async () => {
                       if (roomId) {
                         addToast("You are already in a different room.", {
@@ -188,8 +197,8 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
                       }
                     }}
                   >
-                    <span className="mx-auto">Make a room</span>
-                  </button>
+                    Make a room
+                  </TextButton>
                 </div>
               </Table.Data>
             </Table.Row>

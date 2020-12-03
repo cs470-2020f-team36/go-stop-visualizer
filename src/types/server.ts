@@ -39,4 +39,5 @@ export interface Room {
   id: string;
   players: string[];
   gameStarted: boolean;
+  singlePlayer: boolean;
 }

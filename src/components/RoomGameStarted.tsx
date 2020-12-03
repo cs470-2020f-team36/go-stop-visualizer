@@ -3,6 +3,7 @@ import { connect } from "redux-zero/react";
 import useAsyncEffect from "use-async-effect";
 import { BlockLoading } from "react-loadingg";
 import { MdClose, MdLanguage } from "react-icons/md";
+import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
 import { IoIosArrowDown } from "react-icons/io";
 import actions, { ActionTypes } from "../actions";
 import { socket } from "../socket";
@@ -23,10 +24,23 @@ import { RouteComponentProps } from "react-router-dom";
 import { useToasts } from "react-toast-notifications";
 import { useTranslation } from "react-i18next";
 import { capitalize } from "../utils/string";
+import Header from "./Header";
+import { BiSave } from "react-icons/bi";
 
 const RoomGameStarted: React.FC<
-  RouteComponentProps & { id: string } & AppState & ActionTypes
-> = ({ id, updateGame, game, clientId, roomId, ...routeComponentProps }) => {
+  RouteComponentProps<{
+    roomId: string;
+  }> & { id: string } & AppState &
+    ActionTypes
+> = ({
+  id,
+  updateGame,
+  game,
+  clientId,
+  rooms,
+  roomId,
+  ...routeComponentProps
+}) => {
   const { addToast } = useToasts();
 
   useEffect(() => {
@@ -49,6 +63,7 @@ const RoomGameStarted: React.FC<
   const [dialogContent, setDialogContent] = useState<React.ReactElement | null>(
     null
   );
+  const [peep, setPeep] = useState(false);
 
   useAsyncEffect(async () => {
     if (!socket) return;
@@ -377,76 +392,149 @@ const RoomGameStarted: React.FC<
       <BlockLoading />
     </div>
   ) : (
-    <div className="w-full h-full">
-      <div className="fixed z-50">
-        {involved && (
-          <TextButton
-            size="sm"
-            onClick={async () => {
-              if (!socket) return;
-              if (!clientId) return;
-              socket.emit("end game", { client: clientId });
-              const endGameMessage = await getServerResponse(
-                "end game response"
-              );
-              if (!endGameMessage.success) {
-                addToast(endGameMessage.error, {
-                  appearance: "error",
-                  autoDismiss: true,
-                });
-              }
-            }}
-          >
-            End Game
-          </TextButton>
-        )}
-      </div>
-      <div className="fixed z-30 right-0 top-0">
-        <IconButton
-          onClick={() => {
-            setShowLogs((s) => !s);
-          }}
-        >
-          {showLogs ? <MdClose /> : <IoIosArrowDown />}
-        </IconButton>
-        <IconButton
-          onClick={() => {
-            i18n.changeLanguage(i18n.language !== "ko" ? "ko" : "en");
-          }}
-        >
-          <MdLanguage />
-        </IconButton>
-      </div>
-      {showLogs && (
-        <div
-          className="fixed right-0 top-0 text-xs max-w-md overflow-y-auto z-20 bg-white bg-opacity-75 p-4 rounded-xl"
-          style={{ maxHeight: "10rem" }}
-        >
-          <pre className="max-w-md break-all whitespace-pre-wrap">
-            {game.logs.join("\n")}
-          </pre>
-        </div>
-      )}
-      <GoStop
-        game={game}
-        player={index === -1 ? null : index}
-        clientId={clientId}
-        roomId={roomId}
-        updateGame={updateGame}
-        {...routeComponentProps}
-      />
-      {showDialog && (
-        <div
-          className="w-full h-full flex place-items-center fixed z-10 top-0 left-0"
-          style={{
-            backgroundColor: "rgba(0, 0, 0, 0.45)",
-          }}
-        >
-          <div className="p-8 bg-white rounded-2xl w-2/3 text-center m-auto">
-            {dialogContent}
+    <div
+      className="w-full h-full relative"
+      style={{
+        backgroundColor: "#3B7157",
+      }}
+    >
+      <Header
+        style={{
+          position: "relative",
+          height: "2em",
+          zIndex: 20,
+        }}
+      >
+        <div className="flex justify-between">
+          <div>
+            {involved && (
+              <TextButton
+                dark
+                size="sm"
+                onClick={async () => {
+                  if (!socket) return;
+                  if (!clientId) return;
+                  socket.emit("end game", { client: clientId });
+                  const endGameMessage = await getServerResponse(
+                    "end game response"
+                  );
+                  if (!endGameMessage.success) {
+                    addToast(endGameMessage.error, {
+                      appearance: "error",
+                      autoDismiss: true,
+                    });
+                  }
+                }}
+              >
+                End Game
+              </TextButton>
+            )}
+          </div>
+          <div className="flex">
+            {!!rooms &&
+              rooms.find(
+                (room) => room.id === routeComponentProps.match.params.roomId
+              )?.singlePlayer && (
+                <IconButton
+                  className="mr-3"
+                  onClick={() => {
+                    setPeep((s) => !s);
+                  }}
+                >
+                  {peep ? (
+                    <HiOutlineEye color="rgba(255, 255, 255, 0.9)" />
+                  ) : (
+                    <HiOutlineEyeOff color="rgba(255, 255, 255, 0.9)" />
+                  )}
+                </IconButton>
+              )}
+            <IconButton
+              className="mr-3"
+              onClick={() => {
+                setShowLogs((s) => !s);
+              }}
+            >
+              {showLogs ? (
+                <MdClose color="rgba(255, 255, 255, 0.9)" />
+              ) : (
+                <IoIosArrowDown color="rgba(255, 255, 255, 0.9)" />
+              )}
+            </IconButton>
+            <IconButton
+              className="mr-3"
+              onClick={() => {
+                i18n.changeLanguage(i18n.language !== "ko" ? "ko" : "en");
+              }}
+            >
+              <MdLanguage color="rgba(255, 255, 255, 0.9)" />
+            </IconButton>
+            <IconButton
+              onClick={() => {
+                const serializedGame = (({ board, flags, state }) => ({
+                  board,
+                  flags,
+                  state,
+                }))(game);
+                const dataString =
+                  "data:text/json;charset=utf-8," +
+                  encodeURIComponent(JSON.stringify(serializedGame));
+                const downloadAnchorNode = document.createElement("a");
+                downloadAnchorNode.setAttribute("href", dataString);
+                downloadAnchorNode.setAttribute(
+                  "download",
+                  `game_${new Date().toISOString()}.json`
+                );
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+              }}
+            >
+              <BiSave color="rgba(255, 255, 255, 0.9)" />
+            </IconButton>
           </div>
         </div>
-      )}
+      </Header>
+      <div
+        className="w-full absolute bottom-0"
+        style={{ height: "calc(100% - 5em)" }}
+      >
+        {showLogs && (
+          <div
+            className="fixed right-0 top-0 text-xs overflow-y-auto z-20 bg-white text-white bg-opacity-25 p-4 rounded-xl"
+            style={{
+              height: "10rem",
+              width: "28rem",
+              top: "5rem",
+              right: "1rem",
+            }}
+          >
+            <pre className="break-all whitespace-pre-wrap">
+              {game.logs.join("\n")}
+            </pre>
+          </div>
+        )}
+        <GoStop
+          peep={peep}
+          game={game}
+          player={index === -1 ? null : index}
+          clientId={clientId}
+          roomId={roomId}
+          updateGame={updateGame}
+          {...routeComponentProps}
+        />
+        {showDialog && (
+          <div
+            className="w-full h-full flex place-items-center fixed z-10 top-0 left-0"
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.45)",
+            }}
+          >
+            <div className="p-8 bg-white rounded-2xl w-2/3 text-center m-auto">
+              {dialogContent}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

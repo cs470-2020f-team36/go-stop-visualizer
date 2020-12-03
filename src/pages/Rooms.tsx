@@ -30,8 +30,9 @@ const Rooms: React.FC<
     clientId,
     updateClientId,
     roomId,
-    history,
     updateRoomId,
+    history,
+    location,
   } = props;
   const { addToast } = useToasts();
   const room: Room | null =
@@ -177,7 +178,12 @@ const Rooms: React.FC<
       </main>
     </Layout>
   ) : (
-    <RoomGameStarted id={match.params.roomId} />
+    <RoomGameStarted
+      id={match.params.roomId}
+      history={history}
+      match={match}
+      location={location}
+    />
   );
 };
 
