@@ -18,6 +18,7 @@ import { Message, Result } from "./types/server";
 import { socket } from "./socket";
 import NotFound from "./pages/NotFound";
 import { useToasts } from "react-toast-notifications";
+import Estimate from "./pages/Estimate";
 
 type AppProps = AppState & ActionTypes;
 
@@ -57,7 +58,7 @@ const App: React.FC<AppProps> = ({
     const welcomeMessage = await getServerResponse("connect response");
     if (welcomeMessage.success) {
       try {
-        assert(welcomeMessage.message.split(" ")[1].slice(0, -1) === socket.id);
+        assert(welcomeMessage.result.split(" ")[1].slice(0, -1) === socket.id);
         console.log("connected!");
       } catch {
         addToast("Socket id does not match", {
@@ -116,6 +117,11 @@ const App: React.FC<AppProps> = ({
       <Switch>
         <Route path="/rooms/:roomId" component={Rooms} />
         <Route path="/rooms" render={() => <Redirect to="/" />} />
+        <Route
+          exact
+          path="/estimate"
+          render={(props) => <Estimate {...props} />}
+        />
         <Route exact path="/" render={(props) => <Main {...props} />} />
         <Route path="/" render={(props) => <NotFound {...props} />} />
       </Switch>

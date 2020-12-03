@@ -1,4 +1,4 @@
-import { Card, Game, GameAction } from "../types/game";
+import { ALL_ACTIONS, Card, Game, GameAction } from "../types/game";
 import { cardNameKo, getMonthName } from "./card";
 
 export function hiddenHand(game: Game, player: 0 | 1, peep: boolean): Card[] {
@@ -62,4 +62,28 @@ export function actionNameEn(action: GameAction): string {
     case "go":
       return action.option ? "go" : "stop";
   }
+}
+
+export function postprocessPolicy(policyBefore: number[], language: string) {
+  const policy_ = policyBefore
+    .map(
+      (v, i) =>
+        [
+          (language === "ko" ? actionNameKo : actionNameEn)(ALL_ACTIONS[i]),
+          v,
+        ] as [string, number]
+    )
+    .filter(([, v]) => v !== 0)
+    .sort((a, b) => b[1] - a[1]);
+  const roundFloat = (a: number) =>
+    `${Math.round(a * 10000) / 10000}`.padEnd(6, "0");
+  const policy: [number, string, string][] = [];
+  for (let i = 0; i < policy_.length; i++) {
+    if (i > 0 && policy_[i - 1][1] === policy_[i][1]) {
+      policy.push([policy[i - 1][0], policy_[i][0], roundFloat(policy_[i][1])]);
+    } else {
+      policy.push([i + 1, policy_[i][0], roundFloat(policy_[i][1])]);
+    }
+  }
+  return policy;
 }

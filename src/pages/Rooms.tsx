@@ -6,7 +6,7 @@ import { AppState } from "../store";
 import { emitToServer, getServerResponse } from "../utils/server";
 import { BlockLoading } from "react-loadingg";
 import IconButton from "../components/IconButton";
-import { BiHome, BiLogIn, BiLogOut } from "react-icons/bi";
+import { BiCalculator, BiHome, BiLogIn, BiLogOut } from "react-icons/bi";
 import { BsPlayFill } from "react-icons/bs";
 import Layout from "../components/Layout";
 import Header from "../components/Header";
@@ -47,29 +47,39 @@ const Rooms: React.FC<
   ) : !room.gameStarted ? (
     <Layout>
       <Header>
-        <div className="flex">
-          <IconButton className="mr-4" onClick={() => history.push("/")}>
-            <BiHome />
-          </IconButton>
-          <TextInput
-            className="w-64 my-1"
-            placeholder="Client ID"
-            value={clientId ?? ""}
-            onChange={(event) => {
-              updateClientId(event.target.value);
-            }}
-          />
-          {roomId && (
+        <div className="flex justify-between">
+          <div className="flex">
+            <IconButton className="mr-4" onClick={() => history.push("/")}>
+              <BiHome />
+            </IconButton>
+            <TextInput
+              className="w-64 my-1"
+              placeholder="Client ID"
+              value={clientId ?? ""}
+              onChange={(event) => {
+                updateClientId(event.target.value);
+              }}
+            />
+            {roomId && (
+              <IconButton
+                className="ml-4"
+                onClick={goToMyRoom(
+                  { history, clientId, roomId, rooms, updateRoomId, addToast },
+                  false
+                )}
+              >
+                <BiLogIn />
+              </IconButton>
+            )}
+          </div>
+          <div>
             <IconButton
               className="ml-4"
-              onClick={goToMyRoom(
-                { history, clientId, roomId, rooms, updateRoomId, addToast },
-                false
-              )}
+              onClick={() => history.push("/estimate")}
             >
-              <BiLogIn />
+              <BiCalculator />
             </IconButton>
-          )}
+          </div>
         </div>
       </Header>
       <main>

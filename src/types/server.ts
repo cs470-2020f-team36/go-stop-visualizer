@@ -1,11 +1,11 @@
-import { Game, GameAction } from "./game";
+import { Game, GameAction, GameEssentials } from "./game";
 
 export type Result<S> =
   | ({ success: true } & S)
   | { success: false; error: string; errorCode: number };
 
 export type Message = {
-  "connect response": { message: string };
+  "connect response": { result: string };
 
   "list rooms": {};
   "list rooms response": { result: Room[] };
@@ -33,6 +33,9 @@ export type Message = {
 
   play: { client: string; action: GameAction };
   "play response": { result: Game };
+
+  "estimate game": { game: GameEssentials };
+  "estimate game response": { result: { policy: number[]; value: number } };
 };
 
 export interface Room {

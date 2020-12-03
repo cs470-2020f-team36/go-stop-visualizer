@@ -5,9 +5,12 @@ import { RouteComponentProps } from "react-router-dom";
 import { useToasts } from "react-toast-notifications";
 import { useWindowSize } from "../hooks";
 import { socket } from "../socket";
-import { ALL_ACTIONS, Card, Game, GameAction } from "../types/game";
+import { Card, Game, GameAction } from "../types/game";
 import { cardNameKo, cardToImageSrc } from "../utils/card";
-import { actionNameEn, actionNameKo, hiddenHand } from "../utils/game";
+import {
+  hiddenHand,
+  postprocessPolicy,
+} from "../utils/game";
 import { emitToServer, getServerResponse } from "../utils/server";
 import { capitalize } from "../utils/string";
 import CardButton from "./CardButton";
@@ -296,24 +299,13 @@ const GoStopField: React.FC<{
             <pre className="break-all whitespace-pre-wrap">
               {!!game.estimate &&
                 (() => {
-                  const policy = game.estimate[0]
-                    .map(
-                      (v, i) =>
-                        [
-                          (i18n.language === "ko"
-                            ? actionNameKo
-                            : actionNameEn)(ALL_ACTIONS[i]),
-                          v,
-                        ] as [string, number]
-                    )
-                    .filter(([i, v]) => v !== 0)
-                    .sort((a, b) => b[1] - a[1]);
+                  const policy = postprocessPolicy(
+                    game.estimate[0],
+                    i18n.language
+                  );
                   const res = policy
                     .slice(0, 5)
-                    .map(
-                      ([action, prob], i) =>
-                        `${i}. ${action} (${prob.toFixed(4)})`
-                    )
+                    .map(([i, action, prob]) => `${i}. ${action} (${prob})`)
                     .join("\n");
                   return res;
                 })()}

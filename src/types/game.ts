@@ -196,10 +196,12 @@ export interface GameFlags {
   four_of_a_month: boolean;
 }
 
-export interface Game {
+export interface GameEssentials {
   board: GameBoard;
   state: GameState;
   flags: GameFlags;
+}
+export interface Game extends GameEssentials {
   logs: string[];
   players: string[];
   actions: GameAction[];

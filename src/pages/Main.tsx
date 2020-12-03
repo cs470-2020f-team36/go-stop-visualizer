@@ -2,7 +2,7 @@ import React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { connect } from "redux-zero/react";
 import { BlockLoading } from "react-loadingg";
-import { BiHome, BiLogIn } from "react-icons/bi";
+import { BiCalculator, BiHome, BiLogIn } from "react-icons/bi";
 import { GrOverview } from "react-icons/gr";
 
 import actions, { ActionTypes } from "../actions";
@@ -40,29 +40,39 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
   return (
     <Layout>
       <Header>
-        <div className="flex">
-          <IconButton className="mr-4" onClick={() => history.push("/")}>
-            <BiHome />
-          </IconButton>
-          <TextInput
-            className="w-64 my-1"
-            placeholder="Client ID"
-            value={clientId ?? ""}
-            onChange={(event) => {
-              updateClientId(event.target.value);
-            }}
-          />
-          {roomId && (
+        <div className="flex justify-between">
+          <div className="flex">
+            <IconButton className="mr-4" onClick={() => history.push("/")}>
+              <BiHome />
+            </IconButton>
+            <TextInput
+              className="w-64 my-1"
+              placeholder="Client ID"
+              value={clientId ?? ""}
+              onChange={(event) => {
+                updateClientId(event.target.value);
+              }}
+            />
+            {roomId && (
+              <IconButton
+                className="ml-4"
+                onClick={goToMyRoom(
+                  { history, clientId, roomId, rooms, updateRoomId, addToast },
+                  false
+                )}
+              >
+                <BiLogIn />
+              </IconButton>
+            )}
+          </div>
+          <div>
             <IconButton
               className="ml-4"
-              onClick={goToMyRoom(
-                { history, clientId, roomId, rooms, updateRoomId, addToast },
-                false
-              )}
+              onClick={() => history.push("/estimate")}
             >
-              <BiLogIn />
+              <BiCalculator />
             </IconButton>
-          )}
+          </div>
         </div>
       </Header>
       <main>
