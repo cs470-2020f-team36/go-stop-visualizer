@@ -26,6 +26,7 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
   rooms,
   updateRoomId,
   updateClientId,
+  updateRooms,
 }) => {
   const { addToast } = useToasts();
 
@@ -195,10 +196,9 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
                         "make room response"
                       );
                       if (newRoomId.success) {
+                        updateRooms([...(rooms ?? []), newRoomId.result]);
                         updateRoomId(newRoomId.result.id);
-                        setTimeout(() => {
-                          history.push(`/rooms/${newRoomId.result.id}`);
-                        }, 300);
+                        history.push(`/rooms/${newRoomId.result.id}`);
                       } else {
                         addToast(newRoomId.error, {
                           appearance: "error",

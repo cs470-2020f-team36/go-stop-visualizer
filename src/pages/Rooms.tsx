@@ -111,9 +111,7 @@ const Rooms: React.FC<
                     "exit room response"
                   );
                   if (exitRoomMessage.success) {
-                    setTimeout(() => {
-                      history.replace("/");
-                    }, 300);
+                    history.replace("/");
                   } else {
                     addToast(exitRoomMessage.error, {
                       appearance: "error",
