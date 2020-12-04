@@ -130,6 +130,10 @@ const Estimate: React.FC<RouteComponentProps & EstimateProps> = ({
                 try {
                   game = JSON.parse(content);
                 } catch {
+                  addToast("The JSON is invalid.", {
+                    appearance: "error",
+                    autoDismiss: true,
+                  });
                   return;
                 }
                 emitToServer("estimate game", { game });
