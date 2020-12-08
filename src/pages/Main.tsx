@@ -2,14 +2,13 @@ import React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { connect } from "redux-zero/react";
 import { BlockLoading } from "react-loadingg";
-import { BiCalculator, BiHome, BiLogIn } from "react-icons/bi";
+import { BiLogIn } from "react-icons/bi";
 import { GrOverview } from "react-icons/gr";
 
 import actions, { ActionTypes } from "../actions";
 import { AppState } from "../store";
 import { emitToServer, getServerResponse } from "../utils/server";
 import IconButton from "../components/IconButton";
-import TextInput from "../components/TextInput";
 import Table from "../components/Table";
 import useAsyncEffect from "use-async-effect";
 import { goToMyRoom } from "../hooks";
@@ -17,6 +16,7 @@ import Layout from "../components/Layout";
 import Header from "../components/Header";
 import { useToasts } from "react-toast-notifications";
 import TextButton from "../components/TextButton";
+import HeaderContents from "../components/HeaderContents";
 
 type MainProps = AppState & ActionTypes;
 const Main: React.FC<RouteComponentProps & MainProps> = ({
@@ -41,40 +41,14 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
   return (
     <Layout>
       <Header>
-        <div className="flex justify-between">
-          <div className="flex">
-            <IconButton className="mr-4" onClick={() => history.push("/")}>
-              <BiHome />
-            </IconButton>
-            <TextInput
-              className="w-64 my-1"
-              placeholder="Client ID"
-              value={clientId ?? ""}
-              onChange={(event) => {
-                updateClientId(event.target.value);
-              }}
-            />
-            {roomId && (
-              <IconButton
-                className="ml-4"
-                onClick={goToMyRoom(
-                  { history, clientId, roomId, rooms, updateRoomId, addToast },
-                  false
-                )}
-              >
-                <BiLogIn />
-              </IconButton>
-            )}
-          </div>
-          <div>
-            <IconButton
-              className="ml-4"
-              onClick={() => history.push("/estimate")}
-            >
-              <BiCalculator />
-            </IconButton>
-          </div>
-        </div>
+        <HeaderContents
+          history={history}
+          clientId={clientId}
+          rooms={rooms}
+          roomId={roomId}
+          updateClientId={updateClientId}
+          updateRoomId={updateRoomId}
+        />
       </Header>
       <main>
         <h2 className="p-4 font-bold text-3xl text-gray-800">Rooms</h2>

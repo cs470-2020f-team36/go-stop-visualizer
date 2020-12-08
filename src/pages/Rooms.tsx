@@ -6,16 +6,15 @@ import { AppState } from "../store";
 import { emitToServer, getServerResponse } from "../utils/server";
 import { BlockLoading } from "react-loadingg";
 import IconButton from "../components/IconButton";
-import { BiCalculator, BiHome, BiLogIn, BiLogOut } from "react-icons/bi";
+import { BiLogIn, BiLogOut } from "react-icons/bi";
 import { BsPlayFill } from "react-icons/bs";
 import Layout from "../components/Layout";
 import Header from "../components/Header";
-import TextInput from "../components/TextInput";
 import { Room } from "../types/server";
-import { goToMyRoom } from "../hooks";
 import Table from "../components/Table";
 import RoomGameStarted from "../components/RoomGameStarted";
 import { useToasts } from "react-toast-notifications";
+import HeaderContents from "../components/HeaderContents";
 
 const Rooms: React.FC<
   RouteComponentProps<{
@@ -47,40 +46,14 @@ const Rooms: React.FC<
   ) : !room.gameStarted ? (
     <Layout>
       <Header>
-        <div className="flex justify-between">
-          <div className="flex">
-            <IconButton className="mr-4" onClick={() => history.push("/")}>
-              <BiHome />
-            </IconButton>
-            <TextInput
-              className="w-64 my-1"
-              placeholder="Client ID"
-              value={clientId ?? ""}
-              onChange={(event) => {
-                updateClientId(event.target.value);
-              }}
-            />
-            {roomId && (
-              <IconButton
-                className="ml-4"
-                onClick={goToMyRoom(
-                  { history, clientId, roomId, rooms, updateRoomId, addToast },
-                  false
-                )}
-              >
-                <BiLogIn />
-              </IconButton>
-            )}
-          </div>
-          <div>
-            <IconButton
-              className="ml-4"
-              onClick={() => history.push("/estimate")}
-            >
-              <BiCalculator />
-            </IconButton>
-          </div>
-        </div>
+        <HeaderContents
+          history={history}
+          clientId={clientId}
+          rooms={rooms}
+          roomId={roomId}
+          updateClientId={updateClientId}
+          updateRoomId={updateRoomId}
+        />
       </Header>
       <main>
         <h2 className="p-4 font-bold text-3xl text-gray-800 inline-flex">

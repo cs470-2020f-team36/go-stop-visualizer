@@ -1,15 +1,12 @@
 import React, { useState } from "react";
-import { BiHome, BiLogIn, BiCalculator } from "react-icons/bi";
 import { RouteComponentProps } from "react-router-dom";
 import { useToasts } from "react-toast-notifications";
 import { connect } from "redux-zero/react";
 import actions, { ActionTypes } from "../actions";
 import Header from "../components/Header";
-import IconButton from "../components/IconButton";
+import HeaderContents from "../components/HeaderContents";
 import Layout from "../components/Layout";
 import TextButton from "../components/TextButton";
-import TextInput from "../components/TextInput";
-import { goToMyRoom } from "../hooks";
 import i18n from "../i18n";
 import { AppState } from "../store";
 import { GameEssentials } from "../types/game";
@@ -36,40 +33,14 @@ const Estimate: React.FC<RouteComponentProps & EstimateProps> = ({
   return (
     <Layout>
       <Header>
-        <div className="flex justify-between">
-          <div className="flex">
-            <IconButton className="mr-4" onClick={() => history.push("/")}>
-              <BiHome />
-            </IconButton>
-            <TextInput
-              className="w-64 my-1"
-              placeholder="Client ID"
-              value={clientId ?? ""}
-              onChange={(event) => {
-                updateClientId(event.target.value);
-              }}
-            />
-            {roomId && (
-              <IconButton
-                className="ml-4"
-                onClick={goToMyRoom(
-                  { history, clientId, roomId, rooms, updateRoomId, addToast },
-                  false
-                )}
-              >
-                <BiLogIn />
-              </IconButton>
-            )}
-          </div>
-          <div>
-            <IconButton
-              className="ml-4"
-              onClick={() => history.push("/estimate")}
-            >
-              <BiCalculator />
-            </IconButton>
-          </div>
-        </div>
+        <HeaderContents
+          history={history}
+          clientId={clientId}
+          rooms={rooms}
+          roomId={roomId}
+          updateClientId={updateClientId}
+          updateRoomId={updateRoomId}
+        />
       </Header>
       <main>
         <h2 className="p-4 font-bold text-3xl text-gray-800">Estimate</h2>
