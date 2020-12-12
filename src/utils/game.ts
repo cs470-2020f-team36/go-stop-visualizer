@@ -1,5 +1,6 @@
 import { ALL_ACTIONS, Card, Game, GameAction } from "../types/game";
 import { cardNameKo, getMonthName } from "./card";
+import { roundFloat } from "./number";
 
 export function hiddenHand(game: Game, player: 0 | 1, peep: boolean): Card[] {
   if (peep) return game.board.hands[player];
@@ -75,8 +76,6 @@ export function postprocessPolicy(policyBefore: number[], language: string) {
     )
     .filter(([, v]) => v !== 0)
     .sort((a, b) => b[1] - a[1]);
-  const roundFloat = (a: number) =>
-    `${Math.round(a * 10000) / 10000}`.padEnd(6, "0");
   const policy: [number, string, string][] = [];
   for (let i = 0; i < policy_.length; i++) {
     if (i > 0 && policy_[i - 1][1] === policy_[i][1]) {

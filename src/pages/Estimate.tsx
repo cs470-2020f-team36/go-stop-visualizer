@@ -12,6 +12,7 @@ import { AppState } from "../store";
 import { GameEssentials } from "../types/game";
 import { postprocessPolicy } from "../utils/game";
 import { emitToServer, getServerResponse } from "../utils/server";
+import { roundFloat } from "../utils/number";
 
 type EstimateProps = AppState & ActionTypes;
 const Estimate: React.FC<RouteComponentProps & EstimateProps> = ({
@@ -135,12 +136,13 @@ const Estimate: React.FC<RouteComponentProps & EstimateProps> = ({
           >
             <div className="p-8 bg-white rounded-2xl w-2/3 text-center m-auto">
               <h3 className="font-black text-3xl text-gray-800 mb-3">
-                Estimation: {estimate.value} Points
+                Estimation: {roundFloat(estimate.value)} Points
               </h3>
               <div className="text-left pt-4">
                 {postprocessPolicy(estimate.policy, i18n.language).map(
                   ([i, a, p]) => (
                     <div
+                      key={i}
                       className={`flex ${
                         i === 1 ? "h-12 text-xl font-bold" : "h-10"
                       } my-4`}

@@ -13,6 +13,7 @@ import {
 } from "../utils/game";
 import { emitToServer, getServerResponse } from "../utils/server";
 import { capitalize } from "../utils/string";
+import { roundFloat } from "../utils/number";
 import CardButton from "./CardButton";
 import TextButton from "./TextButton";
 
@@ -73,6 +74,7 @@ const GameEnded: React.FC<
   const involved = !!clientId && game.players.includes(clientId);
   const { addToast } = useToasts();
   const { t } = useTranslation();
+  const getName = (name: string) => name === process.env.REACT_APP_AI_AGENT_ID ? "AlphaGoStop" : name;
 
   return (
     <div
@@ -89,7 +91,7 @@ const GameEnded: React.FC<
             ? `🌟 ${capitalize(t("victory"))}!`
             : 1 - game.state.winner === player
             ? `😥 ${capitalize(t("defeat"))}...`
-            : `🏆 ${game.players[game.state.winner]}${t("'s")} ${capitalize(
+            : `🏆 ${getName(game.players[game.state.winner])}${t("'s")} ${capitalize(
                 t("victory")
               )}!`}
         </h2>
@@ -320,7 +322,7 @@ const GoStopField: React.FC<{
               maxWidth: ratio * BASE_WIDTH,
             }}
           >
-            {t("Estimated score")}: {!!game.estimate ? game.estimate[1] : "-"}
+            {t("Estimated score")}: {!!game.estimate ? roundFloat(game.estimate[1]) : "-"}
           </div>
         </>
       )}

@@ -31,7 +31,9 @@ const HeaderContents: React.FC<HeaderContentsProps> = ({
           <TextInput
             className="w-64 my-1"
             style={{
-              maxWidth: "calc(100vw - 14rem)",
+              maxWidth: !!roomId
+                ? "calc(100vw - 14rem)"
+                : "calc(100vw - 10rem)",
             }}
             placeholder="Client ID"
             value={clientId ?? ""}

@@ -26,7 +26,16 @@ const updateGame = (store: Store<AppState>) => (
   state: AppState,
   game: Game | null
 ) => {
-  return { game } as Partial<AppState>;
+  console.log(game?.estimate);
+  return {
+    game:
+      game === null
+        ? null
+        : {
+            ...game,
+            estimate: game.estimate ?? state.game?.estimate,
+          },
+  } as Partial<AppState>;
 };
 type Voidify<T> = T extends (...params: infer R) => unknown
   ? (...params: R) => void
