@@ -5,4 +5,4 @@
 
 # Live Demo
 
-https://cs470-go-stop.herokuapp.com/ 
+https://gostop.kanu.kim/
