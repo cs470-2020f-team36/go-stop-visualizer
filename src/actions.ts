@@ -26,7 +26,6 @@ const updateGame = (store: Store<AppState>) => (
   state: AppState,
   game: Game | null
 ) => {
-  console.log(game?.estimate);
   return {
     game:
       game === null

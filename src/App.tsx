@@ -59,7 +59,7 @@ const App: React.FC<AppProps> = ({
     if (welcomeMessage.success) {
       try {
         assert(welcomeMessage.result.split(" ")[1].slice(0, -1) === socket.id);
-        console.log("connected!");
+        console.info("Connected to the server.");
       } catch {
         addToast("Socket id does not match", {
           appearance: "error",
