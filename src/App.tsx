@@ -95,6 +95,7 @@ const App: React.FC<AppProps> = ({
     }
   }, [clientId]);
 
+  // update state.rooms on list rooms response
   useEffect(() => {
     emitToServer("list rooms", {});
 

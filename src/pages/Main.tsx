@@ -53,6 +53,7 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
       <main>
         <h2 className="p-4 font-bold text-3xl text-gray-800">Rooms</h2>
 
+        {/* list all existing rooms */}
         <Table.Wrapper>
           <Table.Head>
             <Table.Row>
@@ -145,6 +146,7 @@ const Main: React.FC<RouteComponentProps & MainProps> = ({
                 </Table.Row>
               ))
             )}
+            {/* show the `make a room` button */}
             <Table.Row>
               <Table.Data className="w-full" colSpan={3}>
                 <div className="h-24 flex items-center justify-center">

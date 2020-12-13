@@ -1,3 +1,5 @@
+// a button component with a text in it
+
 import React from "react";
 
 const mapIconBaseSize = {

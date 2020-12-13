@@ -1,3 +1,5 @@
+// async functions that do something with the server
+
 import { socket } from "../socket";
 import { Message, Result } from "../types/server";
 

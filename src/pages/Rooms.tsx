@@ -1,3 +1,5 @@
+// a page component for `/rooms/${roomId}`
+
 import React from "react";
 import { Redirect, RouteComponentProps } from "react-router-dom";
 import { connect } from "redux-zero/react";
@@ -42,6 +44,7 @@ const Rooms: React.FC<
       <BlockLoading />
     </Layout>
   ) : !room ? (
+    // if there is no such room, redirect to '/'
     <Redirect to="/" />
   ) : !room.gameStarted ? (
     <Layout>
@@ -56,6 +59,7 @@ const Rooms: React.FC<
         />
       </Header>
       <main>
+        {/* show some buttons */}
         <h2 className="p-4 font-bold text-3xl text-gray-800 inline-flex">
           Room {match.params.roomId}
           {roomId === match.params.roomId && clientId && (
@@ -126,6 +130,7 @@ const Rooms: React.FC<
           )}
         </h2>
 
+        {/* show the list of players */}
         <Table.Wrapper>
           <Table.Head>
             <Table.Row>

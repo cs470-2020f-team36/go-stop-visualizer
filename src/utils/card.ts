@@ -1,5 +1,6 @@
 import { Card } from "../types/game";
 
+// return the image src of a card
 export function cardToImageSrc(card: Card) {
   return `/images/cards/${
     card.startsWith("?")
@@ -12,6 +13,7 @@ export function cardToImageSrc(card: Card) {
   }.png`;
 }
 
+// return the name of a card in korean
 export function cardNameKo(card: Card) {
   if (card.startsWith("B")) {
     return `${parseInt(card.substring(1))}월 광`;
@@ -49,6 +51,7 @@ export function cardNameKo(card: Card) {
   return "숨겨진 패";
 }
 
+// return the name of month in english
 export function getMonthName(month: number) {
   const months = [
     "January",
@@ -67,6 +70,7 @@ export function getMonthName(month: number) {
   return months[month - 1];
 }
 
+// return the name of a card in english
 export function cardNameEn(card: Card) {
   const month = parseInt(card.substring(1, 3));
   const monthName = getMonthName(month);

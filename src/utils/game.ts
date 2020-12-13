@@ -2,6 +2,7 @@ import { ALL_ACTIONS, Card, Game, GameAction } from "../types/game";
 import { cardNameKo, getMonthName } from "./card";
 import { roundFloat } from "./number";
 
+// hide private cards (if peep is false)
 export function hiddenHand(game: Game, player: 0 | 1, peep: boolean): Card[] {
   if (peep) return game.board.hands[player];
   const len = game.board.hands[player].length;
@@ -13,6 +14,7 @@ export function hiddenHand(game: Game, player: 0 | 1, peep: boolean): Card[] {
   return [...shown, ...Array(len - shown.length).fill("?")];
 }
 
+// return the name of an action in korean
 export function actionNameKo(action: GameAction): string {
   switch (action.kind) {
     case "throw":
@@ -38,6 +40,7 @@ export function actionNameKo(action: GameAction): string {
   }
 }
 
+// return the name of an action in english
 export function actionNameEn(action: GameAction): string {
   switch (action.kind) {
     case "throw":
@@ -65,6 +68,8 @@ export function actionNameEn(action: GameAction): string {
   }
 }
 
+// postprocess the policy to show the calculated policy
+// see `Estimate.tsx` or `GoStop.tsx` to find a use case
 export function postprocessPolicy(policyBefore: number[], language: string) {
   const policy_ = policyBefore
     .map(

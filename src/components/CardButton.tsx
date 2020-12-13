@@ -1,3 +1,5 @@
+// Buttons styled as a Go-Stop card.
+
 import React from "react";
 import { Card } from "../types/game";
 import { cardToImageSrc } from "../utils/card";

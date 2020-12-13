@@ -1,3 +1,4 @@
+// print a float in a form of "x.xxxx"
 export const roundFloat = (a: number) => {
   const f = Math.round(a * 10000) / 10000;
   if (Math.floor(f) === f) {

@@ -1,3 +1,5 @@
+// a text input component for typing client id
+
 import React from "react";
 
 type TextInputProps = {

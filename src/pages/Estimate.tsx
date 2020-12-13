@@ -46,6 +46,7 @@ const Estimate: React.FC<RouteComponentProps & EstimateProps> = ({
       <main>
         <h2 className="p-4 font-bold text-3xl text-gray-800">Estimate</h2>
         <div className="overflow-x-auto bg-white rounded-lg shadow max-w-4xl m-auto box-content mx-4 overflow-hidden">
+          {/* top bar region */}
           <div
             className="w-full px-4 py-3 relative text-center"
             style={{ minHeight: "3rem" }}
@@ -94,7 +95,9 @@ const Estimate: React.FC<RouteComponentProps & EstimateProps> = ({
               Paste the serialized game (JSON file) into the text field below.
             </div>
           </div>
+          {/* code editor region */}
           <CodeEditor value={content} onChange={(v) => setContent(v)} />
+          {/* bottom region */}
           <div className="flex justify-end p-4">
             <TextButton
               onClick={async () => {
@@ -127,6 +130,7 @@ const Estimate: React.FC<RouteComponentProps & EstimateProps> = ({
             </TextButton>
           </div>
         </div>
+        {/* show the estimation result */}
         {!!estimate && (
           <div
             className="w-full h-full flex place-items-center fixed z-10 top-0 left-0"

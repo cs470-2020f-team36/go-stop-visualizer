@@ -1,3 +1,5 @@
+// Table component for rendering room/user list
+
 import React from "react";
 
 const Wrapper: React.FC = ({ children }) => (

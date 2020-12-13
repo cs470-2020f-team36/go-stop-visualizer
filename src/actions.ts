@@ -1,3 +1,5 @@
+// redux-zero actions
+
 import Store from "redux-zero/interfaces/Store";
 import { AppState } from "./store";
 import { Game } from "./types/game";

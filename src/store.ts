@@ -1,3 +1,5 @@
+// define the global state
+
 import createStore from "redux-zero";
 import { Game } from "./types/game";
 import { Room } from "./types/server";

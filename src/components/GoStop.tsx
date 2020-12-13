@@ -1,3 +1,5 @@
+// Go-Stop visualizer component
+
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { GoTriangleRight } from "react-icons/go";
@@ -7,10 +9,7 @@ import { useWindowSize } from "../hooks";
 import { socket } from "../socket";
 import { Card, Game, GameAction } from "../types/game";
 import { cardNameKo, cardToImageSrc } from "../utils/card";
-import {
-  hiddenHand,
-  postprocessPolicy,
-} from "../utils/game";
+import { hiddenHand, postprocessPolicy } from "../utils/game";
 import { emitToServer, getServerResponse } from "../utils/server";
 import { capitalize } from "../utils/string";
 import { roundFloat } from "../utils/number";
@@ -19,7 +18,7 @@ import TextButton from "./TextButton";
 
 const GoStop: React.FC<
   RouteComponentProps & {
-    peep: boolean;
+    peep: boolean; // whether peep AlphaGoStop's estimation or not
     game: Game;
     player: 0 | 1 | null;
     clientId: string | null;
@@ -49,6 +48,7 @@ const GoStop: React.FC<
         clientId={clientId}
       />
       {game.state.ended ? (
+        // The modal component shown when a game is over.
         <GameEnded
           game={game}
           player={player}
@@ -74,7 +74,9 @@ const GameEnded: React.FC<
   const involved = !!clientId && game.players.includes(clientId);
   const { addToast } = useToasts();
   const { t } = useTranslation();
-  const getName = (name: string) => name === process.env.REACT_APP_AI_AGENT_ID ? "AlphaGoStop" : name;
+  // Translate `process.env.REACT_APP_AI_AGENT_ID` into the text AlphaGoStop
+  const getName = (name: string) =>
+    name === process.env.REACT_APP_AI_AGENT_ID ? "AlphaGoStop" : name;
 
   return (
     <div
@@ -91,9 +93,9 @@ const GameEnded: React.FC<
             ? `🌟 ${capitalize(t("victory"))}!`
             : 1 - game.state.winner === player
             ? `😥 ${capitalize(t("defeat"))}...`
-            : `🏆 ${getName(game.players[game.state.winner])}${t("'s")} ${capitalize(
-                t("victory")
-              )}!`}
+            : `🏆 ${getName(game.players[game.state.winner])}${t(
+                "'s"
+              )} ${capitalize(t("victory"))}!`}
         </h2>
         <p>
           <span className="text-xl text-gray-800">
@@ -110,149 +112,159 @@ const GameEnded: React.FC<
         </p>
         <p>
           <span className="text-md text-gray-800">
-            {game.state.winner === null
-              ? null
-              : [
-                  {
-                    kind: "go-add",
-                    arg: game.state.go_histories[game.state.winner].length,
-                  },
-                  ...game.state.score_factors[game.state.winner],
-                ]
-                  .map((factor) =>
-                    factor.kind === "go-add"
-                      ? factor.arg === 0
-                        ? null
-                        : `${capitalize(t("go"))} ${factor.arg}${t("points")}`
-                      : factor.kind === "go"
-                      ? factor.arg <= 2
-                        ? null
-                        : `${capitalize(t("go"))} ${Math.pow(
-                            2,
-                            factor.arg - 2
-                          )}${t("multiples")}`
-                      : factor.kind === "bright"
-                      ? factor.arg === 0
-                        ? null
-                        : `${capitalize(t("brights"))} ${factor.arg}${t(
-                            "points"
+            {
+              // show the score factors
+              game.state.winner === null
+                ? null
+                : [
+                    {
+                      kind: "go-add",
+                      arg: game.state.go_histories[game.state.winner].length,
+                    },
+                    ...game.state.score_factors[game.state.winner],
+                  ]
+                    .map((factor) =>
+                      factor.kind === "go-add"
+                        ? factor.arg === 0
+                          ? null
+                          : `${capitalize(t("go"))} ${factor.arg}${t("points")}`
+                        : factor.kind === "go"
+                        ? factor.arg <= 2
+                          ? null
+                          : `${capitalize(t("go"))} ${Math.pow(
+                              2,
+                              factor.arg - 2
+                            )}${t("multiples")}`
+                        : factor.kind === "bright"
+                        ? factor.arg === 0
+                          ? null
+                          : `${capitalize(t("brights"))} ${factor.arg}${t(
+                              "points"
+                            )}`
+                        : factor.kind === "animal"
+                        ? factor.arg < 5
+                          ? null
+                          : `${capitalize(t("animals"))} ${factor.arg - 4}${t(
+                              "points"
+                            )}`
+                        : factor.kind === "ribbon"
+                        ? factor.arg < 5
+                          ? null
+                          : `${capitalize(t("ribbons"))} ${factor.arg - 4}${t(
+                              "points"
+                            )}`
+                        : factor.kind === "junk"
+                        ? factor.arg < 10
+                          ? null
+                          : `${capitalize(t("junks"))} ${factor.arg - 9}${t(
+                              "points"
+                            )}`
+                        : factor.kind === "five birds"
+                        ? `${capitalize(t("five birds"))} 5${t("points")}`
+                        : factor.kind === "red ribbons"
+                        ? `${capitalize(t("red ribbons"))} 3${t("points")}`
+                        : factor.kind === "blue ribbons"
+                        ? `${capitalize(t("blue ribbons"))} 3${t("points")}`
+                        : factor.kind === "plant ribbons"
+                        ? `${capitalize(t("plant ribbons"))} 3${t("points")}`
+                        : factor.kind === "shaking"
+                        ? factor.arg === 0
+                          ? null
+                          : `${capitalize(t("shaking"))} ${Math.pow(
+                              2,
+                              factor.arg
+                            )}${t("multiples")}`
+                        : factor.kind === "bright penalty"
+                        ? `${capitalize(t("bright penalty"))} 2${t(
+                            "multiples"
                           )}`
-                      : factor.kind === "animal"
-                      ? factor.arg < 5
-                        ? null
-                        : `${capitalize(t("animals"))} ${factor.arg - 4}${t(
-                            "points"
+                        : factor.kind === "animal penalty"
+                        ? `${capitalize(t("animal penalty"))} 2${t(
+                            "multiples"
                           )}`
-                      : factor.kind === "ribbon"
-                      ? factor.arg < 5
-                        ? null
-                        : `${capitalize(t("ribbons"))} ${factor.arg - 4}${t(
-                            "points"
-                          )}`
-                      : factor.kind === "junk"
-                      ? factor.arg < 10
-                        ? null
-                        : `${capitalize(t("junks"))} ${factor.arg - 9}${t(
-                            "points"
-                          )}`
-                      : factor.kind === "five birds"
-                      ? `${capitalize(t("five birds"))} 5${t("points")}`
-                      : factor.kind === "red ribbons"
-                      ? `${capitalize(t("red ribbons"))} 3${t("points")}`
-                      : factor.kind === "blue ribbons"
-                      ? `${capitalize(t("blue ribbons"))} 3${t("points")}`
-                      : factor.kind === "plant ribbons"
-                      ? `${capitalize(t("plant ribbons"))} 3${t("points")}`
-                      : factor.kind === "shaking"
-                      ? factor.arg === 0
-                        ? null
-                        : `${capitalize(t("shaking"))} ${Math.pow(
-                            2,
-                            factor.arg
-                          )}${t("multiples")}`
-                      : factor.kind === "bright penalty"
-                      ? `${capitalize(t("bright penalty"))} 2${t("multiples")}`
-                      : factor.kind === "animal penalty"
-                      ? `${capitalize(t("animal penalty"))} 2${t("multiples")}`
-                      : factor.kind === "junk penalty"
-                      ? `${capitalize(t("junk penalty"))} 2${t("multiples")}`
-                      : factor.kind === "go penalty"
-                      ? `${capitalize(t("go penalty"))} 2${t("multiples")}`
-                      : factor.kind === "four of a month"
-                      ? `${capitalize(t("four of a month"))} 10${t("points")}`
-                      : `${capitalize(t("three stackings"))} 10${t("points")}`
-                  )
-                  .filter((x) => x !== null)
-                  .join(", ")}
+                        : factor.kind === "junk penalty"
+                        ? `${capitalize(t("junk penalty"))} 2${t("multiples")}`
+                        : factor.kind === "go penalty"
+                        ? `${capitalize(t("go penalty"))} 2${t("multiples")}`
+                        : factor.kind === "four of a month"
+                        ? `${capitalize(t("four of a month"))} 10${t("points")}`
+                        : `${capitalize(t("three stackings"))} 10${t("points")}`
+                    )
+                    .filter((x) => x !== null)
+                    .join(", ")
+            }
           </span>
         </p>
         <div>
-          {involved ? (
-            <div className="flex">
-              <TextButton
-                className="m-auto mt-4"
-                onClick={async () => {
-                  if (!socket) return;
-                  if (!clientId) return;
+          {
+            // when the client is involved in a game, show `new games` and `return to room` buttons.
+            involved ? (
+              <div className="flex">
+                <TextButton
+                  className="m-auto mt-4"
+                  onClick={async () => {
+                    if (!socket) return;
+                    if (!clientId) return;
 
-                  updateGame(null);
+                    updateGame(null);
 
-                  emitToServer("end game", { client: clientId });
-                  const endGameMessage = await getServerResponse(
-                    "end game response"
-                  );
-                  if (!endGameMessage.success) {
-                    addToast(endGameMessage.error, {
-                      appearance: "error",
-                      autoDismiss: true,
-                    });
-                    return;
-                  }
+                    emitToServer("end game", { client: clientId });
+                    const endGameMessage = await getServerResponse(
+                      "end game response"
+                    );
+                    if (!endGameMessage.success) {
+                      addToast(endGameMessage.error, {
+                        appearance: "error",
+                        autoDismiss: true,
+                      });
+                      return;
+                    }
 
-                  emitToServer("start game", { client: clientId });
-                  const startGameMessage = await getServerResponse(
-                    "start game response"
-                  );
-                  if (!startGameMessage.success) {
-                    addToast(startGameMessage.error, {
-                      appearance: "error",
-                      autoDismiss: true,
-                    });
-                  }
-                }}
-              >
-                {capitalize(t("new games"))}
-              </TextButton>
-              <TextButton
-                className="m-auto mt-4"
-                onClick={async () => {
-                  if (!socket) return;
-                  if (!clientId) return;
-                  if (!roomId) return;
+                    emitToServer("start game", { client: clientId });
+                    const startGameMessage = await getServerResponse(
+                      "start game response"
+                    );
+                    if (!startGameMessage.success) {
+                      addToast(startGameMessage.error, {
+                        appearance: "error",
+                        autoDismiss: true,
+                      });
+                    }
+                  }}
+                >
+                  {capitalize(t("new games"))}
+                </TextButton>
+                <TextButton
+                  className="m-auto mt-4"
+                  onClick={async () => {
+                    if (!socket) return;
+                    if (!clientId) return;
+                    if (!roomId) return;
 
-                  updateGame(null);
+                    updateGame(null);
 
-                  emitToServer("end game", { client: clientId });
-                  const endGameMessage = await getServerResponse(
-                    "end game response"
-                  );
-                  if (!endGameMessage.success) {
-                    addToast(endGameMessage.error, {
-                      appearance: "error",
-                      autoDismiss: true,
-                    });
-                    return;
-                  }
+                    emitToServer("end game", { client: clientId });
+                    const endGameMessage = await getServerResponse(
+                      "end game response"
+                    );
+                    if (!endGameMessage.success) {
+                      addToast(endGameMessage.error, {
+                        appearance: "error",
+                        autoDismiss: true,
+                      });
+                      return;
+                    }
 
-                  if (history) {
-                    history.push(`/rooms/${roomId}`);
-                  }
-                }}
-              >
-                {capitalize(t("return to room"))}
-              </TextButton>
-            </div>
-          ) : null}
+                    if (history) {
+                      history.push(`/rooms/${roomId}`);
+                    }
+                  }}
+                >
+                  {capitalize(t("return to room"))}
+                </TextButton>
+              </div>
+            ) : null
+          }
         </div>
       </div>
     </div>
@@ -287,6 +299,7 @@ const GoStopField: React.FC<{
         padding: 16,
       }}
     >
+      {/* show the estimation when `peep` is true */}
       {peep && (
         <>
           <div
@@ -299,18 +312,21 @@ const GoStopField: React.FC<{
             }}
           >
             <pre className="break-all whitespace-pre-wrap">
-              {!!game.estimate &&
-                (() => {
-                  const policy = postprocessPolicy(
-                    game.estimate[0],
-                    i18n.language
-                  );
-                  const res = policy
-                    .slice(0, 5)
-                    .map(([i, action, prob]) => `${i}. ${action} (${prob})`)
-                    .join("\n");
-                  return res;
-                })()}
+              {
+                // show the estimated policy
+                !!game.estimate &&
+                  (() => {
+                    const policy = postprocessPolicy(
+                      game.estimate[0],
+                      i18n.language
+                    );
+                    const res = policy
+                      .slice(0, 5)
+                      .map(([i, action, prob]) => `${i}. ${action} (${prob})`)
+                      .join("\n");
+                    return res;
+                  })()
+              }
             </pre>
           </div>
           <div
@@ -322,10 +338,13 @@ const GoStopField: React.FC<{
               maxWidth: ratio * BASE_WIDTH,
             }}
           >
-            {t("Estimated score")}: {!!game.estimate ? roundFloat(game.estimate[1]) : "-"}
+            {/* show the estimated score */}
+            {t("Estimated score")}:{" "}
+            {!!game.estimate ? roundFloat(game.estimate[1]) : "-"}
           </div>
         </>
       )}
+      {/* render opponent's hidden (when peep is false) hand */}
       <GoStopHand
         ratio={ratio}
         hand={hiddenHand(game, top, peep)}
@@ -334,6 +353,7 @@ const GoStopField: React.FC<{
       />
       <div style={{ height: ratio * 32 }} />
 
+      {/* render opponent's name/score card and capture field */}
       <div className="flex justify-center" style={{ height: ratio * 189 }}>
         <GoStopNameCard ratio={ratio} name={game.players[top]} />
         <GoStopCaptureField
@@ -350,8 +370,10 @@ const GoStopField: React.FC<{
         />
       </div>
       <div style={{ height: ratio * 96 }} />
+      {/* render the center field */}
       <GoStopCenterField centerField={game.board.center_field} ratio={ratio} />
       <div style={{ height: ratio * 96 }} />
+      {/* render my name card/score and capture field */}
       <div className="flex justify-center" style={{ height: ratio * 189 }}>
         <GoStopNameCard ratio={ratio} name={game.players[bottom]} />
         <GoStopCaptureField
@@ -368,6 +390,7 @@ const GoStopField: React.FC<{
         />
       </div>
       <div style={{ height: ratio * 32 }} />
+      {/* render my hand if the client is in the game; elsewise hide it */}
       <GoStopHand
         ratio={ratio}
         hand={
@@ -384,6 +407,7 @@ const GoStopField: React.FC<{
   );
 };
 
+// render the profile image and the name
 const GoStopNameCard: React.FC<{ ratio: number; name: string }> = ({
   ratio,
   name: name_,
@@ -443,6 +467,7 @@ const GoStopNameCard: React.FC<{ ratio: number; name: string }> = ({
   );
 };
 
+// render the score and go/stacking/shaking counts
 const GoStopScoreCard: React.FC<{
   ratio: number;
   score: number;
@@ -497,6 +522,7 @@ const GoStopScoreCard: React.FC<{
   );
 };
 
+// Go-Stop card component
 const GoStopCard: React.FC<{
   card: Card;
   width?: number;
@@ -542,14 +568,15 @@ const GoStopCard: React.FC<{
   );
 };
 
+// render a hand
 const GoStopHand: React.FC<{
   hand: Card[];
-  mine?: boolean;
+  mine?: boolean; // whether the hand is mine (if so, make it larger) or not
   actions?: GameAction[];
   ratio: number;
   style?: React.CSSProperties;
   clientId: string | null;
-  turn: boolean;
+  turn: boolean; // if the player of the given hand is playing their turn
 }> = ({
   hand,
   mine = false,
@@ -660,6 +687,7 @@ const GoStopHand: React.FC<{
   );
 };
 
+// render the capture field
 const GoStopCaptureField: React.FC<{
   captureField: Card[];
   animal9Moved: boolean | null;
@@ -725,7 +753,7 @@ const GoStopCaptureField: React.FC<{
         pile={brightCards}
         sizeOfChunk={5}
         ratio={ratio}
-        style={{ marginRight: 40 * ratio }}
+        style={{ ...(style ?? {}), marginRight: 40 * ratio }}
         number={
           brightCards.length < 3
             ? brightCards.length
@@ -765,6 +793,8 @@ const GoStopCaptureField: React.FC<{
   );
 };
 
+// render a capture field pile with a small square on the bottom-right-most card
+// with a number (indicating the score) written
 const GoStopCaptureFieldPile: React.FC<{
   pile: Card[];
   ratio: number;
@@ -831,6 +861,7 @@ const GoStopCaptureFieldPile: React.FC<{
   );
 };
 
+// render the center field
 const GoStopCenterField: React.FC<{
   centerField: Game["board"]["center_field"];
   ratio: number;
@@ -873,6 +904,8 @@ const GoStopCenterField: React.FC<{
     </div>
   );
 };
+
+// render each pile (representing a month) in the center field
 const GoStopCenterFieldItem: React.FC<{
   field?: Card[];
   ratio: number;

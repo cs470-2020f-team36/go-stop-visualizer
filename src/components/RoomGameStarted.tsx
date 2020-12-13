@@ -1,3 +1,5 @@
+// Visualize a room where the game is started
+
 import React, { useEffect, useState } from "react";
 import { connect } from "redux-zero/react";
 import useAsyncEffect from "use-async-effect";
@@ -43,6 +45,7 @@ const RoomGameStarted: React.FC<
 }) => {
   const { addToast } = useToasts();
 
+  // attach the spectate game listener
   useEffect(() => {
     const listener = (message: Result<Message["spectate game response"]>) => {
       if (message.success) {
@@ -63,8 +66,10 @@ const RoomGameStarted: React.FC<
   const [dialogContent, setDialogContent] = useState<React.ReactElement | null>(
     null
   );
-  const [peep, setPeep] = useState(false);
+  const [peep, setPeep] = useState(false); // whether to peep the AlphaGoStop's cards or not
 
+  // the following effect will set the dialog component
+  // when some flags are set (so the player's additional action is needed)
   useAsyncEffect(async () => {
     if (!socket) return;
     if (!game) return;
@@ -385,7 +390,7 @@ const RoomGameStarted: React.FC<
   }, [socket, game, updateGame]);
 
   const index = game?.players.findIndex((p) => p === clientId) as -1 | 0 | 1;
-  const involved = !!clientId && game?.players.includes(clientId);
+  const involved = (!!clientId && game?.players.includes(clientId)) ?? false;
 
   return game === null ? (
     <div className="w-full h-full">
@@ -407,47 +412,54 @@ const RoomGameStarted: React.FC<
       >
         <div className="flex justify-between">
           <div>
-            {involved && (
-              <TextButton
-                dark
-                size="sm"
-                onClick={async () => {
-                  if (!socket) return;
-                  if (!clientId) return;
-                  socket.emit("end game", { client: clientId });
-                  const endGameMessage = await getServerResponse(
-                    "end game response"
-                  );
-                  if (!endGameMessage.success) {
-                    addToast(endGameMessage.error, {
-                      appearance: "error",
-                      autoDismiss: true,
-                    });
-                  }
-                }}
-              >
-                End Game
-              </TextButton>
-            )}
-          </div>
-          <div className="flex">
-            {!!rooms &&
-              rooms.find(
-                (room) => room.id === routeComponentProps.match.params.roomId
-              )?.singlePlayer && (
-                <IconButton
-                  className="mr-3"
-                  onClick={() => {
-                    setPeep((s) => !s);
+            {
+              // show the end game button if the client is playing the game
+              involved && (
+                <TextButton
+                  dark
+                  size="sm"
+                  onClick={async () => {
+                    if (!socket) return;
+                    if (!clientId) return;
+                    socket.emit("end game", { client: clientId });
+                    const endGameMessage = await getServerResponse(
+                      "end game response"
+                    );
+                    if (!endGameMessage.success) {
+                      addToast(endGameMessage.error, {
+                        appearance: "error",
+                        autoDismiss: true,
+                      });
+                    }
                   }}
                 >
-                  {peep ? (
-                    <HiOutlineEye color="rgba(255, 255, 255, 0.9)" />
-                  ) : (
-                    <HiOutlineEyeOff color="rgba(255, 255, 255, 0.9)" />
-                  )}
-                </IconButton>
-              )}
+                  End Game
+                </TextButton>
+              )
+            }
+          </div>
+          <div className="flex">
+            {
+              // show the peep button if one of the players is AlphaGoStop
+              !!rooms &&
+                rooms.find(
+                  (room) => room.id === routeComponentProps.match.params.roomId
+                )?.singlePlayer && (
+                  <IconButton
+                    className="mr-3"
+                    onClick={() => {
+                      setPeep((s) => !s);
+                    }}
+                  >
+                    {peep ? (
+                      <HiOutlineEye color="rgba(255, 255, 255, 0.9)" />
+                    ) : (
+                      <HiOutlineEyeOff color="rgba(255, 255, 255, 0.9)" />
+                    )}
+                  </IconButton>
+                )
+            }
+            {/* show logs button */}
             <IconButton
               className="mr-3"
               onClick={() => {
@@ -460,6 +472,7 @@ const RoomGameStarted: React.FC<
                 <IoIosArrowDown color="rgba(255, 255, 255, 0.9)" />
               )}
             </IconButton>
+            {/* language change button */}
             <IconButton
               className="mr-3"
               onClick={() => {
@@ -468,6 +481,7 @@ const RoomGameStarted: React.FC<
             >
               <MdLanguage color="rgba(255, 255, 255, 0.9)" />
             </IconButton>
+            {/* save game state as a json button */}
             <IconButton
               onClick={() => {
                 const serializedGame = (({ board, flags, state }) => ({
@@ -498,6 +512,7 @@ const RoomGameStarted: React.FC<
         className="w-full absolute bottom-0"
         style={{ height: "calc(100% - 5em)" }}
       >
+        {/* show logs */}
         {showLogs && (
           <div
             className="fixed right-0 top-0 text-xs overflow-y-auto z-20 bg-white text-white bg-opacity-25 p-4 rounded-xl"
@@ -513,6 +528,7 @@ const RoomGameStarted: React.FC<
             </pre>
           </div>
         )}
+        {/* Go-Stop game renderer */}
         <GoStop
           peep={peep}
           game={game}
@@ -522,6 +538,7 @@ const RoomGameStarted: React.FC<
           updateGame={updateGame}
           {...routeComponentProps}
         />
+        {/* show the dialog to grant an additional action */}
         {showDialog && (
           <div
             className="w-full h-full flex place-items-center fixed z-10 top-0 left-0"

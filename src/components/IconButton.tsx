@@ -1,3 +1,5 @@
+// buttons with an icon in it
+
 import React from "react";
 
 const mapIconBaseSize = {

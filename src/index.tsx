@@ -9,19 +9,6 @@ import { Provider } from "redux-zero/react";
 import store from "./store";
 import "./i18n";
 
-// monkey patch console.error to suppress contentEditable error
-console.error = (function () {
-  var error = console.error;
-
-  return function (exception: any) {
-    if (
-      !(exception + "").startsWith("Warning: A component is `contentEditable`")
-    ) {
-      error.apply(console, arguments as any);
-    }
-  };
-})();
-
 ReactDOM.render(
   <Provider store={store}>
     <ToastProvider>
